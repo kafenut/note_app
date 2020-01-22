@@ -1,0 +1,114 @@
+<!--extends kafenut layout-->
+{% extends "base.html" %}
+{% block content %}
+
+<!--note-->
+<div class="jumbotron px-1">
+    <h3 class="text-center">{{note.title}}</h3>
+    <div class="d-flex flex-row justify-content-center mt-3">
+        <small class="text-muted">作者:{{note.author.nickname}}</small>
+        <small class="text-muted mx-3">上传于:{{momentjs(note.upload_time).calendar()}}</small>
+        <small class="text-muted">浏览次数:{{note.view_num}}</small>
+    </div>
+    <hr />
+<pre style="white-space:pre-line;font-size:1.2rem;" >
+{% include "note/"+note.path %}
+</pre>
+
+<div class="d-flex flex-row">
+    {% if note.author == g.user %}
+    <a href="{{url_for('modify_note',nickname=g.user.nickname,note_id=note.id)}}" class=" ml-auto mr-2 btn btn-outline-success">修改笔记</a>
+    {% else %}
+    <a href="#" class=" ml-auto mr-2 btn btn-outline-success">点赞一下</a>
+    {% endif %}
+</div>
+</div>
+
+<hr />
+<h4 class="text-primary ml-4 mb-4">评论</h4>
+
+{% for cmmt in cmmts  %}
+    {% include "sub_templates/note_cmmt.html" %}
+{% endfor %}
+
+<!--comment form-->
+<form method="post" id="comment_form" class="mt-4">
+    <input type="hidden" name="under_cmmt_id" id="under_cmmt_id" />
+    <input type="hidden" name="to_note_id" id="to_note_id" value="{{note.id}}" />
+    <input type="hidden" name="to_cmmt_id" id="to_cmmt_id" />
+    <div class="form-group">
+        <div class="d-flex flex-row mb-1">
+            <h5 class="my-auto text-primary" id="to_who"></h5>
+            <button type="button" class="btn btn-outline-success ml-auto my-auto d-none" id="clear">清空</button>
+        </div>
+        <textarea rows="10" class="form-control" id="body" name="body" placeholder="我也来说两句..."></textarea>
+        <div class="invalid-feedback">
+            200 character at most!
+        </div>
+    </div>
+    <div class="d-flex flex-row">
+        <small class="text-muted" id="body_len"></small>
+        {% if g.user.is_authenticated %}
+        <button class="btn btn-outline-primary ml-auto" type="submit">上传</button>
+        {% else %}
+        <button class="btn btn-outline-primary ml-auto" type="submit" disabled>请先登录!</button>
+        {% endif %}
+    </div>
+</form>
+
+<script>
+    $(function () {
+        'use strict'
+
+        $('#title').text($('#note_name').text());
+
+        //display the length of body
+        $('#body').keydown(function () {            
+            $('#body_len').text('length: ' + $(this).val().length);
+        });
+
+        $('#comment_form').submit(function (event) {
+            var body = $('#body');
+            var val = body.val();
+            if (!val || val.length > 200) {
+                body.addClass('is-invalid');
+                return false;
+            }
+            return true;
+        });
+
+        //switch reply object
+        $('#clear').click(function () {
+            event.preventDefault()
+            $('#under_cmmt_id').val('');
+            $('#to_who').text('Reply to: This note');
+            $('#to_cmmt_id').val('');
+        });
+
+        $('.note').click(function (event) {
+            event.preventDefault()
+            $('#under_cmmt_id').val('');
+            $('#to_who').text('Reply to: This note');
+            $('#to_cmmt_id').val('');
+        });
+
+        $('.cmmt').click(function (event) {        
+            event.preventDefault();
+            $('#under_cmmt_id').val(this.id);
+            $('#to_who').text('Reply to: ' + $(this).data('nickname'));
+            $('#to_cmmt_id').val('');
+            $('#clear').removeClass('d-none');
+        });
+
+        $('.sub_cmmt').click(function (event) {        
+            event.preventDefault();
+            $('#under_cmmt_id').val($(this).data('under'));
+            $('#to_who').text('Reply to: ' + $(this).data('nickname'));
+            $('#to_cmmt_id').val(this.id);
+            $('#clear').removeClass('d-none');
+        });
+
+    });
+</script>
+<script src="/static/js/like.js"></script>
+{% endblock %}

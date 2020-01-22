@@ -1,0 +1,41 @@
+<div class="card m-2" style="min-height:9rem;">
+    <div class="row no-gutters">
+        <div class="col-auto d-flex flex-column justify-content-center">
+            <img src="{{cmmt.author.get_avatar(110)}}" alt="" class="card-img m-1" style="height:6rem;width:6rem;" />
+            <div class="row">
+                <a class="card-link m-auto" href="{{url_for('user',nickname=cmmt.author.nickname)}}">{{cmmt.author.nickname}}</a>
+            </div>
+        </div>
+        <div class="col d-flex flex-column">
+            <div class="card-body py-1 d-flex flex-column" style="min-height:9rem;">
+                <p class="card-title mb-1 text-primary" href="#">{{num}} floor</p>
+                <pre class="card-text text-break mb-0" style="font-size:100%;">{{cmmt.body}}</pre>
+                <div class="d-flex flex-row mt-auto justify-content-between">
+                    <div class="like_link" data-id="{{cmmt.id}}" data-like="like" data-type="cmmt">
+                        <span>{{cmmt.like_num}} </span>
+                        <a href="#">
+                            <i class="far fa-heart"></i>
+                        </a>
+                    </div>
+                    <div>
+                        <span class="">{{cmmt.sub_cmmts.count()}} </span>
+                        <a href="#collapse{{cmmt.id}}" id="{{cmmt.id}}" data-nickname="{{cmmt.author.nickname}}" class="cmmt" data-toggle="collapse">
+                            <i class="far fa-comment-dots"></i>
+                        </a>
+                    </div>
+                    <div class="card-text text-muted text-right"><small><span class="d-none d-md-inline">Uploaded on: </span>{{momentjs(cmmt.upload_time).calendar()}}</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="collapse" id="collapse{{cmmt.id}}">
+    <div class="row">
+        <div class="col-11 offset-1">
+            {% for sub_cmmt in cmmt.sub_cmmts.order_by("upload_time") %}
+                {% include "sub_templates/sub_cmmt.html"%}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+

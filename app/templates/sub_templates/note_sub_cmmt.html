@@ -1,0 +1,32 @@
+<div class="card m-0">
+    <div class="row no-gutters" style="min-height:7rem;">
+        <div class="col-auto d-flex flex-column justify-content-center">
+            <img src="{{sub_cmmt.author.get_avatar()}}" alt="" class="card-img m-1" style="height:5rem;width:5rem;" />
+            <div class="row">
+                <a class="card-link m-auto" href="url_for('user',nickname=sub_cmmt.author.nickname)">{{sub_cmmt.author.nickname}}</a>
+            </div>
+        </div>
+        <div class="col d-flex flex-column">
+            <div class="card-body py-1 d-flex flex-column" style="min-height:7rem;">
+                {% if sub_cmmt.to_cmmt %}
+                <span>To <a class="card-title mb-1" href="#">{{sub_cmmt.to_cmmt.author.nickname}}:</a></span>
+                {% endif %}
+                <p class="card-text text-break mb-0">{{sub_cmmt.body}}</p>
+                <div class="d-flex flex-row mt-auto justify-content-between">
+                    <div class="like_link" data-id="{{sub_cmmt.id}}" data-like="like" data-type="note_cmmt">
+                        <span>{{sub_cmmt.like_num}}</span>
+                        <a href="#">
+                            <i class="far fa-heart"></i>
+                        </a>
+                    </div>
+                    <div>
+                        <a class="sub_cmmt" href="" id="{{sub_cmmt.id}}" data-nickname="{{sub_cmmt.author.nickname}}" data-under="{{sub_cmmt.under_cmmt.id}}" >
+                            <i class="far fa-comment-dots"></i>
+                        </a>
+                    </div>
+                    <div class="card-text text-muted text-right"><small><span class="d-none d-md-inline"></span>{{momentjs(sub_cmmt.upload_time).calendar()}}</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

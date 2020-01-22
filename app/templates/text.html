@@ -1,0 +1,62 @@
+<!--pagination-->
+<div class="d-flex flex-row justify-content-center m-1">
+    <nav>
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('contact')}}?page=1"><span>上一页</span></a>
+            </li>
+            <li class="page-item" id="prev_page">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.prev_num}}"><span>&laquo;</span></a>
+            </li>
+            <li class="page-item active" id="active_page">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.page}}"><span>{{issues.page}}</span></a>
+            </li>
+            <li class="page-item" id="next_page">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.next_num}}"><span>&raquo;</span></a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.pages}}"><span>下一页</span></a>
+            </li>
+            <li class="page-item">
+                <select class="custom-select" id="page_select" data-url="{{url_for('contact')}}?page=">
+                    {% for num in range(1,issues.pages+1) %}
+                    <option value="{{num}}">{{num}}</option>
+                    {% endfor %}
+                </select>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!--disable prev-->
+{% if not issues.has_prev %}
+<script>
+    $(function () {
+        $('#prev_page').addClass('disabled');
+    });
+</script>
+{% endif %}
+
+<!--disable next-->
+{% if not issues.has_next %}
+<script>
+    $(function () {
+        $('#next_page').addClass('disabled');
+    });
+</script>
+{% endif %}
+
+<!--when page select changes-->
+<script>
+    'use strict';
+    $(function () {
+        var num = Number($('#active_page').text());  //page select initiation
+        num = String(num);
+        $('#page_select').val(num);
+
+        $('#page_select').change(function () {
+            var url = $(this).data('url') + $(this).val();
+            window.location.href = url;
+        });
+    });
+</script>

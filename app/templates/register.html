@@ -1,0 +1,140 @@
+<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+<form novalidate method="post" id="register_form">
+    <div class="form-row">
+        <div class="col-md-6">
+            <label for="nickname">Nickname:</label>
+            <input type="text" class="form-control" id="nickname" name="nickname" placeholder="Your nickname..." />
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+            <div class="invalid-feedback">
+                3 character at least ,15 at most!
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="Your email..." />
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+            <div class="invalid-feedback">
+                Invalid email!
+            </div>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-md-6">
+            <label for="password">Your password:</label>
+            <input type="password" class="form-control" id="password" placeholder="Your password..." />
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+            <div class="invalid-feedback">
+                6 character at least, 15 at most!
+            </div>
+        </div>
+        <div>
+            <input type="hidden" id="passwd" name="passwd" />
+        </div>
+        <div class="col-md-6">
+            <label for="confirm">Confirm:</label>
+            <input type="password" class="form-control" id="confirm" placeholder="Confirm your password..." />
+            <div class="valid-feedback">
+                Looks good!
+            </div>
+            <div class="invalid-feedback">
+                Passwords don't' match!
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="about_me">About me:</label>
+        <textarea class="form-control is-valid" id="about_me" name="about_me" placeholder="Your self introduction..." maxlength="500" rows="4"></textarea>
+        <div class="valid-feedback">
+            Looks good!
+        </div>
+        <div class="invalid-feedback">
+            at most 140 characters!
+        </div>
+        <small class="form-text text-muted">(optinal)</small>
+    </div>
+    <div class="d-flex flex-row justify-content-end">
+        <small class="form-text text-danger m-2" id="submit_text"></small>
+        <button type="submit" class="btn btn-outline-success">Register now!</button>
+    </div>
+</form>
+<script>
+    'use strict'
+    $(function () {
+        $('#title').text('Register');
+
+        $('#register_form').find('.form-control').change(function (event) {  //
+            var val = $(this).val();
+            if (this.checkValidity() === false) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+                return;
+            }
+            if (this.id === 'nickname') {
+                if (val.length > 15 || val.length < 3) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                    return;
+                }
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+            else if (this.id === 'email') {
+                if (val.length > 60) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                    return;
+                }
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+            else if (this.id === 'password') {
+                if (val.length > 15 || val.length < 6) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                    return;
+                }
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+            else if (this.id === 'confirm') {
+                if (val !== $('#register_form').find('#password').val()) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                    return;
+                }
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+            else if (this.id === 'about_me') {
+                if (val.length > 200) {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                    return;
+                }
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            }
+        });
+
+        $('#register_form').submit(function (event) {
+            var inputs = $(this).find('.form-control').toArray()
+            $('#submit_text').text('')
+            function is_valid(inputs) {
+                for (var input of inputs) {
+                    if ($(input).hasClass('is-valid') === false) {
+                        return false;
+                    }
+                };
+                return true;
+            };
+            if (is_valid(inputs) === false) {
+                $('#submit_text').text('You should check the form above!')
+                event.stopPropagation()
+                event.preventDefault()
+                return false
+            }
+            var passwd = sha512($('#password').val());
+            $('#register_form').find('#passwd').val(passwd);
+            return true;
+        });
+
+    });
+</script>
+{% endblock %}

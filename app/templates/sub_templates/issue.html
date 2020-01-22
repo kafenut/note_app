@@ -1,0 +1,38 @@
+<div class="card my-2" style="max-height:15rem;min-height:9rem;">
+    <div class="row no-gutters">
+
+        <div class="col-2">
+            <div class="d-flex flex-column justify-content-center px-1 mr-1" >
+                <img src="{{issue.author.get_avatar(110)}}" alt="" class="card-img m-1" style="width:100%;" />
+                <div class="row m-auto">
+                    <a class="m-auto" href="{{url_for('user',nickname=issue.author.nickname)}}">
+                        {{issue.author.nickname}}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-8">
+            <div class="card-body p-1 d-flex flex-column" style="max-height:15rem;min-height:9rem;">
+                <h5 class="card-title mb-1">{{issue.title}}</h5>
+                <p class="card-text text-truncated">{{issue.body}}</p>
+                <div class="mt-auto d-flex flex-row justify-content-end ">
+                    <small class="text-muted card-text">上传于:{{momentjs(issue.upload_time).calendar()}}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-2">
+            <div class="d-flex flex-column justify-content-center" style="max-height:15rem;min-height:9rem;">
+                {% if issue.fixed==1 %}
+                <i class="far fa-check-circle mx-auto mb-2" style="color:green;font-size:4rem;"></i>
+                <p class="text-center">已解决</p>
+                {% else %}
+                <i class="far fa-question-circle mx-auto mb-2" style="color:#ffc107;font-size:4rem;"></i>
+                <p class="text-center">待解决</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>

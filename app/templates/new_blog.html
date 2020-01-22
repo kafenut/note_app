@@ -1,0 +1,65 @@
+<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+
+<form id="blog_form" method="post" novalidate>
+    <div class="form-group">
+        <label for="title" class="text-primary h4">title: </label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="title..." required/>
+        <div class="invalid-feedback">
+            You need a title for your blog! (maxlength 50)
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="body" class="text-primary h4">body: </label>
+        <textarea class="form-control" rows="15" id="body" name="body" placeholder="say something..." required></textarea>
+        <div class="invalid-feedback">
+            Body is needed!(maxlength 500)
+        </div>
+    </div>
+    <div class="d-flex flex-row">
+        <small class="text-muted" id="body_len"></small>
+        <button type="submit" class="btn btn-outline-success ml-auto">Upload now!</button>
+    </div>
+</form>
+<script>
+    'use strict'
+    $(function () {
+        $('#title').text('Write a new blog!');
+
+        $('#blog_form').submit(function (event) {                  //validation for blog_form
+            var inputs = $(this).find('.form-control').toArray()
+            var length = length;
+            for (var input of inputs) {
+                if (input.checkValidity() === false) {
+                    $(input).addClass('is-invalid').removeClass('is-valid')
+                }
+                else if (input.id === 'title') {
+                    if (length > 50) {
+                        $(input).addClass('is-invalid').removeClass('is-valid');
+                    }
+                    else
+                        $(input).addClass('is-valid').removeClass('is-invalid');
+                }
+                else{
+                    if (length > 500) {
+                        $(input).addClass('is-invalid').removeClass('is-valid');
+                    }
+                    else
+                        $(input).addClass('is-valid').removeClass('is-invalid');
+                }
+            };
+            for (input of inputs) {
+                if ($(input).hasClass('is-valid') === false)
+                    return false;
+
+            };
+            return true;
+        });
+
+        $('#body').keydown(function () {         //dynamically display body length
+            $('#body_len').text('length: '+$(this).val().length);
+        });
+    });
+</script>
+{% endblock %}

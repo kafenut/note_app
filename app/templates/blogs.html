@@ -1,0 +1,78 @@
+<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+
+{% for blog in blogs.items %}
+    {% include "sub_templates/blog.html" %}
+{% endfor %}
+
+{% if blogs.items %}
+<div class="d-flex flex-row justify-content-center m-1">   <!--page-->
+    <nav>
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('blogs',nickname=user.nickname)}}?page=1"><span>first page</span></a>
+            </li>
+            <li class="page-item" id="prev_page">
+                <a class="page-link" href="{{url_for('blogs',nickname=user.nickname)}}?page={{blogs.prev_num}}"><span>&laquo;</span></a>
+            </li>
+            <li class="page-item active" id="active_page">
+                <a class="page-link" href="{{url_for('blogs',nickname=user.nickname)}}?page={{blogs.page}}"><span>{{blogs.page}}</span></a>
+            </li>
+            <li class="page-item" id="next_page">
+                <a class="page-link" href="{{url_for('blogs',nickname=user.nickname)}}?page={{blogs.next_num}}"><span>&raquo;</span></a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('blogs',nickname=user.nickname)}}?page={{blogs.pages}}"><span>last page</span></a>
+            </li>
+            <li class="page-item">
+                <select class="custom-select" id="page_select" data-url="{{url_for('blogs',nickname=user.nickname)}}?page=">
+                    {% for num in range(1,blogs.pages+1) %}
+                    <option value="{{num}}">{{num}}</option>
+                    {% endfor %}
+                </select>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% else %}
+<hr />
+<h4 class="text-danger">You have written no blogs!</h4>
+<div class="d-flex flex-row justify-content-end">
+    <a class="btn btn-primary" href="{{url_for('write_blog')}}">Write blog now!</a>
+</div>
+{% endif %}
+
+{% if not blogs.has_prev %}   
+    <script>                 //disable prev
+        $(function () {
+            $('#prev_page').addClass('disabled');
+        });
+    </script>
+{% endif %}
+
+{% if not blogs.has_next %}
+    <script>                   //disable next
+        $(function () {
+            $('#next_page').addClass('disabled');
+        });
+    </script>
+{% endif %}
+
+<script>
+    'use strict';
+    $(function () {       
+        $('#title').text('My blogs');
+
+        var num = Number($('#active_page').text());  //page select initiation
+        num = String(num);
+        $('#page_select').val(num);
+
+        $('#page_select').change(function () {
+            var url = $(this).data('url') + $(this).val();
+            window.location.href=url;
+        });
+    });
+</script>
+<script src="/static/js/like.js"></script>
+{% endblock %}

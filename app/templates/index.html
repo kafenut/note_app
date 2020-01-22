@@ -1,0 +1,20 @@
+<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+
+{% if notes.all() %}
+    {% for note in notes %}
+        {% include "sub_templates/note.html"%}
+    {% endfor %}
+{% else %}
+    <h4 class="text-danger">Seems like all your followers are lazy dogs...</h4>
+{% endif %}
+
+<script>
+    'use strict'
+    $(function () {
+        $('#title').text('Home');  //导航栏
+    });
+</script>
+
+{% endblock %}

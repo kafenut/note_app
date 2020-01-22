@@ -1,0 +1,27 @@
+<div class="card m-2" style="min-height:9rem;">
+    <div class="row no-gutters">
+        <div class="col-auto d-flex flex-column justify-content-center">
+            <img src="{{note.author.get_avatar(110)}}" alt="" class="card-img m-1" style="height:6rem;width:6rem;" />
+            <div class="row">
+                <p class="card-text m-auto text-primary">{{note.author.nickname}}</p>
+            </div>
+        </div>
+        <div class="col d-flex flex-column">
+            <div class="card-body py-1 d-flex flex-column" style="min-height:9rem;">
+                <a class="card-title mb-1 stretched-link h4" href="{{url_for('note',nickname=note.author.nickname,note_id=note.id)}}">{{note.title}}</a>
+                <h5>{{note.summary}}</h5>
+                <div class="d-flex flex-row mt-auto justify-content-between">
+                    <div class="like_link" data-id="{{note.id}}" data-like="like" data-type="cmmt">
+                        <span>{{note.like_num}}</span>
+                        <i class="far fa-heart" style="color:#007bff;"></i>
+                    </div>
+                    <div>
+                        <span class="">{{note.cmmts.count()}} </span>
+                        <i class="far fa-comment-dots" style="color:#007bff;"></i>
+                    </div>
+                    <div class="card-text text-muted text-right"><small><span class="d-none d-md-inline">上传于: </span>{{momentjs(note.upload_time).calendar()}}</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

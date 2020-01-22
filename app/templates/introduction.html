@@ -1,0 +1,47 @@
+<!--extends kafenut layout-->
+{% extends "base.html" %}
+{% block content %}
+
+<div class="jumbotron">
+    <h1>这是一个垃圾博客</h1>
+    <hr />
+    <p class="lead">
+        这的确是个垃圾博客，不过即便是垃圾也会有它的用处。本网站主要用于我个人学习笔记的记录，顺道带了些博客的功能（看的教程里的...）
+        总的来说，本站用了大量的外部框架和其他人编写的一些小部件，其他代码倒都是自己码的。
+    </p>
+    <hr />
+    <p></p>
+    <p class="mb-1">
+        本站后端使用的是python的<a href="http://www.pythondoc.com/flask/index.html" target="_blank">flask</a>框架（模板渲染自然是<a href="https://jinja.palletsprojects.com/en/2.10.x/" target="_blank">jinja2</a>），
+        数据库用的是<a href="https://www.mysql.com/" target="_blank">mysql</a>，而前端则使用了<a href="https://getbootstrap.com/" target="_blank">bootstrap4.3</a>框架，总的来说是一个轻量级的web app。
+        其他的外建素材还有，侧面菜单栏：<a href="https://github.com/azouaoui-med/pro-sidebar-template" target="_blank">pro-sidebar-template</a>，
+        小图标：<a href="https://fontawesome.com" target="_blank">fontawesome</a>，时间显示：<a href="http://momentjs.cn/" target="_blank">momentjs</a>，
+        密码加密sha512：<a href="https://github.com/emn178/js-sha512" target="_blank">js-sha512</a>
+        不过由于某些神秘因素，上面的这些链接可能并打不开就是了，需要你自己科学伤亡，这我也没办法。
+        不过后续这个服务器也可能会有科学伤亡的功能，敬请期待吧。
+    </p>
+    <img src="/static/img/source/qing.jpg" style="height:15rem;"/>
+    <p >
+        本站还是花费了我不少心血的，不过很多功能仍有待实现与改进。不过仔细想想，好像我自己写的也就那个图片裁剪上传功能要麻烦些，其他好像都没啥技术含量...
+        其他更细节的东西，可以去<a href="https://github.com/kafenut/awesome_web_app" target="_blank">github</a>上看我的源代码,不过本身也只是个垃圾app，没啥好看的就是了。
+    </p>
+    <img src="/static/img/source/junk.jpg" style="height:10rem;"/>
+    <hr />
+    <p>
+        不过如果你发现本站有哪些可改进的方面，可以直接在我的网站里<a href="#">留言</a>，或者在qq2630026377上联系我，每一条建议与评论我都会好好看的（虽然本来就没几条）
+    </p>
+    <img src="/static/img/source/jb.jpg" style="height:10rem;" />
+    <p>
+        顺道一提，本站用sha512加密你的密码，服务器上并不储存密码明文，安全性是有得保证的。甚至连我（管理员）都不知道你的密码，如果你懂js的话，看看网站源码就知道了
+        ，你的密码是先经sha512加密后再传输给本站的。
+    </p>
+</div>
+
+<script>
+    'use strict'
+    $(function () {
+        $('#title').text('网站简介');
+    });
+</script>
+
+{% endblock %}

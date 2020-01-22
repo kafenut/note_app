@@ -1,0 +1,160 @@
+<!--extends note layout-->
+{% extends "base.html" %}
+{% block content %}
+
+<form id="note_form" method="post" novalidate data-nickname="{{note.author.nickname}}" data-id="{{note.id}}" data-folder="{{note.logic_folder}}">
+    <div class="form-group">
+        <label for="note_title" class="text-primary h4">标题</label>
+        <input type="text" class="form-control" id="note_title" placeholder="写些什么吧..." value="{{note.title}}" />
+        <div class="invalid-feedback">
+            最大长度50，最小1
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="note_body" class="text-primary h4">正文</label>
+        <textarea type="text" class="form-control" id="note_body" rows="40">{% include "note/"+note.path %}</textarea>
+        <div class="invalid-feedback">
+            最小长度10
+        </div>
+    </div>
+    <div>
+        <div id="old_folder">
+            <div class="d-flex flex-row">
+                <label for="note_path" class="text-primary my-auto mr-2">储存路径：</label>
+                <select class="custom-select w-auto" id="note_path">
+                    {% for folder in g.user.folders %}
+                    <option value="{{folder}}">{{folder}}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-outline-success ml-2" type="button" id="new_folder_button">新文件夹</button>
+                <button class="btn btn-outline-success ml-2 disabled" type="button" id="new_folder_button1">你至多能建立5个文件夹</button>
+                {% if g.user.folders.__len__() >= 5 %}
+                <script>
+                    $(function () {
+                        $('#new_folder_button').hide();
+                        $('#new_folder_button1').show();
+                    });
+                </script>
+                {% endif %}
+            </div>
+        </div>
+        <div id="new_folder" style="display:none;">
+            <div class="d-flex flex-row form-group">
+                <p class="text-primary my-auto">新文件夹：</p>
+                <div class="d-flex flex-column col-5 ml-1">
+                    <input type="text" class="form-control" id="note_new_folder" placeholder="文件夹名..." />
+                    <div class="invalid-feedback">
+                        文件夹名长度范围为1-20
+                    </div>
+                </div>
+                <button class="btn btn-outline-success ml-1" type="button" id="folder_cancel_button">取消</button>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-row">
+        <small class="text-muted ml-auto my-auto" id="body_len"></small>
+        <small id="tip" class="text-danger my-auto ml-1"></small>
+        <button type="submit" class="btn btn-outline-primary ml-1 my-auto">上传</button>
+    </div>
+</form>
+<script>
+    'use strict';
+    $(function () {
+        $('#title').text('修改笔记');
+
+        //let current folder be choosen
+        $('[value=' + $('#note_form').data('folder') + ']').prop('selected', true);  
+
+        var new_folder = false;
+        $('#new_folder_button').click(function () {
+            $('#old_folder').hide();
+            $('#new_folder').show();
+            new_folder = true;
+        });
+
+        $('#folder_cancel_button').click(function () {
+            $('#old_folder').show();
+            $('#new_folder').hide();
+            new_folder = false;
+        });
+
+        //validation and ajax for note_form
+        $('#note_form').submit(function (e) {                  
+            var inputs = $(this).find('.form-control').toArray()
+            for (var input of inputs) {
+                if (input.checkValidity() === false) {
+                    $(input).addClass('is-invalid').removeClass('is-valid')
+                }
+                var length = $(input).val().length;
+                if (input.id === 'note_title') {
+                    if (length < 1 || length > 50) {
+                        $(input).addClass('is-invalid').removeClass('is-valid');
+                    }
+                    else
+                        $(input).addClass('is-valid').removeClass('is-invalid');
+                }
+                else if (input.id === 'note_new_folder' && new_folder === true) {
+                    if (length < 1 || length > 20) {
+                        $(input).addClass('is-invalid').removeClass('is-valid');
+                    }
+                    else
+                        $(input).addClass('is-valid').removeClass('is-invalid');
+                }
+                else {
+                    if (length < 10) {
+                        $(input).addClass('is-invalid').removeClass('is-valid');
+                    }
+                    else
+                        $(input).addClass('is-valid').removeClass('is-invalid');
+                }
+            };
+
+            if (new_folder === false) {
+                $('#note_new_folder').addClass('is-valid').removeClass('is-invalid');
+            }
+
+            for (input of inputs) {
+                if ($(input).hasClass('is-valid') === false)
+                    return false;
+            };
+
+            var tip = $('#tip');
+            var path;
+            if (new_folder === false)
+                path = $('#note_path').val();
+            else
+                path = $('#note_new_folder').val();
+
+            var raw_data = {
+                title: 'modify_note',
+                new_folder: new_folder,
+                note_id: $(this).data('id'),
+                note_title: $('#note_title').val(),
+                note_body: $('#note_body').val(),
+                note_path: $('#note_path').val()
+            };
+            var data = JSON.stringify(raw_data);
+            $.ajax({
+                url: '/' + $(this).data('nickname') + '/modify_note/'+$(this).data('id'),
+                method: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: data
+            }).done(function (resp) {
+                tip.text(resp.text);
+                if (resp.success == true) {
+                    window.location.href = resp.url;
+                }
+            }).fail(function (xhr, status) {
+                tip.text('fail: ' + xhr.status + ',reason: ' + status);
+            });
+            return false;
+        });
+
+        $('#note_body').keydown(function () {         //dynamically display body length
+            $('#body_len').text('length: ' + $(this).val().length);
+        });
+    });
+</script>
+
+{% endblock %}

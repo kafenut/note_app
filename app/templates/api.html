@@ -1,0 +1,56 @@
+<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <h4 class="card-header text-primary">
+        User api
+    </h4>
+    <div class="card-body">
+        <h5 class="card-title">/api/user?id=xxx,/api/user?nickname=xxx</h5>
+        <p class="card-text">
+            You can access our user api in the format above.
+        </p>
+        <p class="card-text">
+            Both id and nickname can be used to locate certain user, but if you use them in the same time, we will ignore the nickname argument.
+        </p>
+        <p class="card-text">
+            The response is a json string. If you want to know more detailed,just try.
+        </p>
+    </div>
+</div>
+<div class="card my-2">
+    <h4 class="card-header text-primary">
+        Blogs api
+    </h4>
+    <div class="card-body">
+        <h5 class="card-title">/api/blogs?author=xxx</h5>
+        <p class="card-text">
+            Blogs api use author's nickname to locate a resource and will return all the blogs writen by it but not in detail(comments are not included)
+        </p>
+        <p class="card-text">
+            However, it will return the blog's id, you can access our blog_page api to access detailed information.
+        </p>      
+        <p class="card-text">
+            Our api response is always a json string.
+        </p>
+    </div>
+</div>
+<div class="card">
+    <h4 class="card-header text-primary">
+        Blog_page api
+    </h4>
+    <div class="card-body">
+        <h5 class="card-title">/api/blog_page?id=xxx</h5>
+        <p class="card-text">
+            Blog_page api use id to locate a certain blog and will return detailed information including both its comments and sub_comments.
+        </p>
+        <p class="card-text">
+            It is not easy to access a blog's id, so we suggest to use this api with blogs api.
+        </p>
+        <p class="card-text">
+            For sure, this api also respond with a json string.
+        </p>
+    </div>
+</div>
+{% endblock %}

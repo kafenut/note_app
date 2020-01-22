@@ -1,0 +1,165 @@
+<!--extends kafenut layout-->
+{% extends "base.html" %}
+{% block content %}
+
+{% for issue in issues.items %}
+    {% include "sub_templates/issue.html" %}
+{% endfor %}
+
+{% if issues.items %}
+<!--pagination-->
+<div class="d-flex flex-row justify-content-center m-1">
+    <nav>
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('contact')}}?page=1"><span>第一页</span></a>
+            </li>
+            <li class="page-item" id="prev_page">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.prev_num}}"><span>&laquo;</span></a>
+            </li>
+            <li class="page-item active" id="active_page">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.page}}"><span>{{issues.page}}</span></a>
+            </li>
+            <li class="page-item" id="next_page">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.next_num}}"><span>&raquo;</span></a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('contact')}}?page={{issues.pages}}"><span>最后一页</span></a>
+            </li>
+            <li class="page-item ml-2">
+                <select class="custom-select" id="page_select" data-url="{{url_for('contact')}}?page=">
+                    {% for num in range(1,issues.pages+1) %}
+                    <option value="{{num}}">{{num}}</option>
+                    {% endfor %}
+                </select>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!--disable prev-->
+{% if not issues.has_prev %}
+<script>
+    $(function () {
+        $('#prev_page').addClass('disabled');
+    });
+</script>
+{% endif %}
+
+<!--disable next-->
+{% if not issues.has_next %}
+<script>
+    $(function () {
+        $('#next_page').addClass('disabled');
+    });
+</script>
+{% endif %}
+
+<!--when page select changes-->
+<script>
+    'use strict';
+    $(function () {
+        var num = Number($('#active_page').text());  //page select initiation
+        num = String(num);
+        $('#page_select').val(num);
+
+        $('#page_select').change(function () {
+            var url = $(this).data('url') + $(this).val();
+            window.location.href = url;
+        });
+    });
+</script>
+
+{% endif %}
+
+<hr />
+<h3 class="text-primary">你的建议</h3>
+<hr />
+
+<form id="issue_form" method="post" novalidate>
+    <div class="form-group my-1">
+        <label for="issue_title" class="h4 text-primary">主题：</label>
+        <input type="text" class="form-control" id="issue_title" name="issue_title" placeholder="主题..."></input>
+        <div class="invalid-feedback">
+            不得少于3个字符，或超过50个字符！
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="issue_body" class="h4 text-primary">正文：</label>
+        <textarea class="form-control" rows="8" id="issue_body" name="issue_body" placeholder="你的建议..."></textarea>
+        <div class="invalid-feedback">
+            不得少于10个字符，或超过200个字符！
+        </div>
+    </div>
+    <div class="d-flex flex-row mt-2">
+        <div class="custom-control custom-checkbox my-auto">
+            <input type="checkbox" class="custom-control-input" id="anonymous" name="anonymous" data-login="{{g.user.is_authenticated}}">
+            <label class="custom-control-label" for="anonymous">是否匿名</label>
+        </div>
+        <small class="text-danger my-auto ml-1" id="tip">您目前尚未登录，只能匿名发送</small>
+        <small class="text-muted ml-auto my-auto" id="body_len"></small>
+        <button class="btn btn-outline-primary ml-1" type="submit" id="issue_submit" disabled>上传评论</button>
+    </div>
+</form>
+
+<script>
+    'use strict'
+    $(function () {
+        $('#title').text('联系我们');
+
+        $('#issue_body').keydown(function () {         //dynamically display body length
+            $('#body_len').text('长度: ' + $(this).val().length);
+        });
+
+        var anony = $('#anonymous');
+        if (anony.data('login') === 'False' && anony.prop('checked') === false) {
+            $('#issue_submit').prop('disabled', true);
+            $('#tip').show();
+        }
+        else {
+            $('#issue_submit').prop('disabled', false);
+            $('#tip').hide();
+        }
+        $('#anonymous').change(function () {
+            if ($(this).data('login') === 'False' && $(this).prop('checked') === false) {
+                $('#issue_submit').prop('disabled', true);
+                $('#tip').show();
+            }
+            else {
+                $('#issue_submit').prop('disabled', false);
+                $('#tip').hide();
+            }
+
+        });
+
+        $('#issue_form').submit(function (e) {
+            var inputs = $(this).find('.form-control').toArray()
+            for (var input of inputs) {
+                if (input.checkValidity() === false) {
+                    $(input).addClass('is-invalid').removeClass('is-valid')
+                }
+                var length = $(input).val().length;
+                if (input.id === 'issue_title') {
+                    if (length < 3 || length > 50) {
+                        $(input).addClass('is-invalid').removeClass('is-valid');
+                    }
+                    else
+                        $(input).addClass('is-valid').removeClass('is-invalid');
+                }
+                else {
+                    if (length < 10 || length > 200) {
+                        $(input).addClass('is-invalid').removeClass('is-valid');
+                    }
+                    else
+                        $(input).addClass('is-valid').removeClass('is-invalid');
+                }
+            };
+            for (input of inputs) {
+                if ($(input).hasClass('is-valid') === false)
+                    return false;
+            };
+            return true;
+        });
+    });
+</script>
+{% endblock %}

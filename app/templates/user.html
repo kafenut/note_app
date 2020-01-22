@@ -1,0 +1,466 @@
+<!--extends base layout-->
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+    <div class="row">
+        <div class="col-3 d-flex flex-column justify-content-center">
+            <img class="card-img my-1" src="{{user.get_avatar(150)}}" alt="" />
+            <div class="card-text text-center text-primary h4">{{user.nickname}}</div>
+            <div class="text-primary h4 mt-1" id="preview_text" style="display:none;">Preview:</div>
+            <canvas class="cropper-edit mb-2" style="width:100%;"></canvas>
+        </div>
+        <div class="col-9 d-flex flex-column">
+            <form class="mt-1 mr-1" method="post" enctype="multipart/form-data">
+                <div class="form-group row">
+                    <label for="nickname" class="col-3 col-form-label text-primary">Nickname</label>
+                    <div class="col-9">
+                        <input type="text" class="form-control-plaintext" id="nickname" value="{{user.nickname}}" readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="email" class="col-3 col-form-label text-primary">Email <a href="#" class="edit_link"><i class="fas fa-pen login-required"></i></a></label>
+                    <div class="col-9">
+                        <input type="text" class="form-control-plaintext" id="email" name="email" value="{{user.email}}" readonly>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="tel_num" class="col-3 col-form-label text-primary">Tel number <a href="#" class="edit_link"><i class="fas fa-pen login-required"></i></a></label>
+                    <div class="col-9">
+                        <input type="text" class="form-control-plaintext" id="tel_num" name="tel_num" value="{{user.tel_num}}" readonly />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="about_me" class="col-3 col-form-label text-primary">About me <a href="#" class="edit_link"><i class="fas fa-pen login-required"></i></a></label>
+                    <div class="col-9">
+                        <textarea type="text" class="form-control" id="about_me" name="about_me" readonly rows="5">{{user.about_me}}</textarea>
+                    </div>
+                </div>
+                <div class="row login-required">
+                    <p class="text-primary col-3">Profile <i class="fas fa-pen"></i></p>
+                    <div class="col-9">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="avatar">
+                            <label class="custom-file-label" for="avatar" id="avatar_label">choose a file...</label>
+                            <small class="text-danger text-end" id="avatar_text"></small>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="avatar_str" name="avatar_str" />
+                <div class="d-flex flex-row mt-2 login-required">
+                    <button id="form_button" type="submit" class="btn btn-outline-primary ml-auto">update</button>
+                </div>
+            </form>
+            <div class="mt-auto d-flex flex-row justify-content-between px-1">
+                <small class="card-text text-muted">followed: num</small>
+                <small class="card-text text-muted">follower: num</small>
+                <small class="card-text text-muted">last seen on: {{momentjs(user.last_seen).calendar()}}</small>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="avatar_modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="text-primary">crop your new profile</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="cropper-container" style="position:relative;">
+                    <img src="#" alt="profile" draggable="false" style="width:100%;" />
+                    <div class="cropper-box" style="z-index:1000;border:solid #0094ff;position: absolute;top:0px;left:0px;"></div>
+                    <div class='cropper-dot dot-lt' style='z-index:2000;position:absolute;height:5px;width:5px;background-color:black;'></div>
+                    <div class='cropper-dot dot-rt' style='z-index:2000;position:absolute;height:5px;width:5px;background-color:black;'></div>
+                    <div class='cropper-dot dot-lb' style='z-index:2000;position:absolute;height:5px;width:5px;background-color:black;'></div>
+                    <div class='cropper-dot dot-rb' style='z-index:2000;position:absolute;height:5px;width:5px;background-color:black;'></div>
+                </div>
+                <div class="d-flex flex-row justify-content-end mt-1">
+                    <button type="button" class="btn btn-outline-primary" id="modal_button">crop image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+<h4 class="text-primary">他的笔记</h4>
+<div class="row">
+    <div class="col-11 offset-1">
+        {% for note in notes.items %}
+        {% include "sub_templates/note.html" %}
+        {% endfor %}
+    </div>
+</div>
+
+{% if g.user!= user %}
+<script>
+    $(function () {
+        $('.login-required').hide().children().hide();
+    });
+</script>
+{% endif %}
+
+<!--page control-->
+{% if notes.items %}
+<div class="d-flex flex-row justify-content-center m-1">
+    <nav>
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('user',nickname=user.nickname)}}?page=1"><span>first page</span></a>
+            </li>
+            <li class="page-item" id="prev_page">
+                <a class="page-link" href="{{url_for('user',nickname=user.nickname)}}?page={{notes.prev_num}}"><span>&laquo;</span></a>
+            </li>
+            <li class="page-item active" id="active_page">
+                <a class="page-link" href="{{url_for('user',nickname=user.nickname)}}?page={{notes.page}}"><span>{{notes.page}}</span></a>
+            </li>
+            <li class="page-item" id="next_page">
+                <a class="page-link" href="{{url_for('user',nickname=user.nickname)}}?page={{notes.next_num}}"><span>&raquo;</span></a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="{{url_for('user',nickname=user.nickname)}}?page={{notes.pages}}"><span>last page</span></a>
+            </li>
+            <li class="page-item">
+                <select class="custom-select" id="page_select" data-url="{{url_for('user',nickname=user.nickname)}}?page=">
+                    {% for num in range(1,notes.pages+1) %}
+                    <option value="{{num}}">{{num}}</option>
+                    {% endfor %}
+                </select>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% else %}
+<h4 class="text-danger">It has written no notes!</h4>
+{% endif %}
+
+{% if not notes.has_prev %}
+<!--disable prev-->
+<script>
+    $(function () {
+        $('#prev_page').addClass('disabled');
+    });
+</script>
+{% endif %}
+<!--disable next-->
+{% if not notes.has_next %}
+<script>
+    $(function () {
+        $('#next_page').addClass('disabled');
+    });
+</script>
+{% endif %}
+<!--page select initiation-->
+<script>
+    $(function () {
+        var num = Number($('#active_page').text());
+        num = String(num);
+        $('#page_select').val(num);
+
+        $('#page_select').change(function () {
+            var url = $(this).data('url') + $(this).val();
+            window.location.href = url;
+        });
+    });
+</script>
+
+<script>
+    'use strict';
+    $(function () {
+        $('#title').text('用户信息');
+
+        //To activate edit
+        $('.edit_link').click(function (event) {
+            event.preventDefault();
+            $(this).parent().next().children().removeAttr('readonly').addClass('form-control').removeClass('form-control-plaintext');
+        });
+
+        //profile cropper
+        var cropper = {
+            init: function () {
+                var t = this;
+                t.modal = $('#avatar_modal');
+
+                t.container = $('.cropper-container');
+                t.image = t.modal.find('img');
+                t.box = t.modal.find('.cropper-box').css('left', '0px').css('top', '0px');
+                t.form = $('#avatar');
+
+                var file = t.form[0].files[0];  //read an image
+                if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+                    $('#avatar_text').text('Invalid image file!');
+                    return;
+                }
+
+                var reader = new FileReader();
+
+                reader.readAsDataURL(file);
+                reader.onload = function (event) {
+                    var data = event.target.result;
+                    t.image.attr('src', data);
+                    t.image.on('load', function () {
+                        t.init_width = t.image[0].naturalWidth;  //origin size of image
+                        t.init_height = t.image[0].naturalHeight;
+
+                        t.container.width(t.image.width());
+                        t.container.height(t.image.height());
+
+                        var init_len = Math.min(t.container.height() / 2, t.container.width() / 2);
+                        t.box.width(init_len).height(init_len);
+
+                        t.dot_lt = $(".dot-lt").appendTo(t.container);
+                        t.dot_rt = $(".dot-rt").appendTo(t.container);
+                        t.dot_lb = $(".dot-lb").appendTo(t.container);
+                        t.dot_rb = $(".dot-rb").appendTo(t.container);
+
+                        t.dot_lt.css('left', '0px').css('top', '0px');   //init cropper-dot
+                        t.dot_rt.css('left', String(t.box.width()) + 'px').css('top', '0px');
+                        t.dot_lb.css('left', '0px').css('top', String(t.box.height()) + 'px');
+                        t.dot_rb.css('left', String(t.box.width()) + 'px').css('top', String(t.box.height()) + 'px');
+                        t.dots = $('.cropper-dot');
+
+                        t.drag_stretch();  //bind drag event
+
+                        $('#modal_button').click(function (e) {  //cut image
+                            e.preventDefault();
+                            t.cut_image();
+                        });
+
+                        $('.close').click(function () {
+                            t.form.val('');
+                        });
+                    });
+                }
+
+                t.modal.modal('show');
+            },
+            drag_stretch: function () {
+                var t = this;
+                var dragging = false;
+                var stretching = false;
+                var mouse_down = false;
+
+                t.box.hover(function () {          //init cursor style
+                    if (mouse_down === false) { this.style.cursor = 'move'; }
+                });
+                t.dot_lt.hover(function () {
+                    if (mouse_down === false) { this.style.cursor = 'nw-resize'; }
+                });
+                t.dot_rt.hover(function () {
+                    if (mouse_down === false) { this.style.cursor = 'sw-resize'; }
+                });
+                t.dot_lb.hover(function () {
+                    if (mouse_down === false) { this.style.cursor = 'ne-resize'; }
+                });
+                t.dot_rb.hover(function () {
+                    if (mouse_down === false) { this.style.cursor = 'se-resize'; }
+                });
+
+                $(window).mouseup(function () {    //disable dragging and stretching
+                    dragging = false;
+                    stretching = false;
+                    mouse_down = false;
+                });
+
+                t.box.mousedown(function (e) {     //if dragging
+                    e.preventDefault();
+
+                    mouse_down = true;
+                    dragging = true;
+                    t.startx = e.pageX - t.container.offset().left;
+                    t.starty = e.pageY - t.container.offset().top;
+                });
+
+                t.dots.mousedown(function (e) {    //if stretching
+                    e.preventDefault();
+
+                    mouse_down = true;
+                    stretching = true;
+                    if ($(this).hasClass('dot-lt')) {    //record which dot is clicked
+                        t.stre_dot = 'lt';
+                        this.style.cursor = 'nw-resize';
+                    }
+                    else if ($(this).hasClass('dot-rt')) {
+                        t.stre_dot = 'rt';
+                        this.style.cursor = 'sw-resize';
+                    }
+                    else if ($(this).hasClass('dot-lb')) {
+                        t.stre_dot = 'lb';
+                        this.style.cursor = 'ne-resize';
+                    }
+                    else {
+                        t.stre_dot = 'rb';
+                        this.style.cursor = 'se-resize';
+                    }
+
+                    t.startx = e.pageX - t.container.offset().left;  //record start coordinates relative to the cropper container
+                    t.starty = e.pageY - t.container.offset().top;
+                });
+
+                t.container.mousemove(function (e) {
+                    t.sx = e.pageX - t.container.offset().left; //cursor's coordinates reletive to cropper.container
+                    t.sy = e.pageY - t.container.offset().top;
+                    t.xbox = e.pageX - t.box.offset().left;  //cursor's coordinates relative to cropper.box
+                    t.ybox = e.pageY - t.box.offset().top;
+
+                    if (dragging) {
+                        var lenx = t.sx - t.startx;
+                        var leny = t.sy - t.starty;
+                        var left = t.box.position().left + lenx;
+                        var top = t.box.position().top + leny;
+
+                        if (left < 0) {  //make sure cropper.box won't out of cropper container
+                            left = 0;
+                        }
+                        else if (left > t.container.width() - t.box.width() - 4) {
+                            left = t.container.width() - t.box.width() - 4;
+                        }
+
+                        if (top < 0) {
+                            top = 0;
+                        }
+                        else if (top > t.container.height() - t.box.height() - 4) {
+                            top = t.container.height() - t.box.height() - 4;
+                        }
+
+                        t.box.css('left', String(left) + 'px').css('top', String(top) + 'px');   //move cropper box and cropper dots
+
+                        t.dot_lt.css('left', String(left) + 'px').css('top', String(top) + 'px');
+                        t.dot_rt.css('left', String(t.box.width() + left) + 'px').css('top', String(top) + 'px');
+                        t.dot_lb.css('left', String(left) + 'px').css('top', String(t.box.height() + top) + 'px');
+                        t.dot_rb.css('left', String(t.box.width() + left) + 'px').css('top', String(t.box.height() + top) + 'px');
+                    }
+                    else if (stretching) {
+                        var min_len = Math.min(t.container.width() / 4, t.container.height() / 4, 80);
+                        var max_len = Math.min(t.container.width(), t.container.height());
+                        var stre_len = Math.max(Math.abs(t.sx - t.startx), Math.abs(t.sy - t.starty));
+
+                        if (t.xbox > 0 && t.xbox < t.box.width() && t.ybox > 0 && t.ybox < t.box.height()) {  //if cursor is in cropper-box, set stre_len to negative
+                            stre_len = -1 * stre_len;
+                        }
+
+                        var ml = t.box.position().left;
+                        var mt = t.box.position().top;
+                        var mr = t.container.width() - t.box.width() - ml - 4;
+                        var mb = t.container.height() - t.box.height() - mt - 4;
+
+
+                        if (t.stre_dot === 'lt') {   //if stretching left top dot
+
+                            if (mt < stre_len || ml < stre_len) {
+                                stre_len = Math.min(mt, ml);
+                            }
+                            else if (t.box.width() + stre_len < min_len || t.box.height() + stre_len < min_len) {
+                                stre_len = min_len - t.box.width(); //get a negative number
+                            }
+
+                            t.box.width(t.box.width() + stre_len).height(t.box.height() + stre_len);
+                            t.box.css('top', String(mt - stre_len) + 'px').css('left', String(ml - stre_len) + 'px');
+                        }
+                        else if (t.stre_dot === 'rt') {   //if stretching right top dot
+
+                            if (mt < stre_len || mr < stre_len) {
+                                stre_len = Math.min(mt, mr);
+                            }
+                            else if (t.box.width() + stre_len < min_len || t.box.height() + stre_len < min_len) {
+                                stre_len = min_len - t.box.width();
+                            }
+
+                            t.box.width(t.box.width() + stre_len).height(t.box.height() + stre_len);
+                            t.box.css('top', String(mt - stre_len) + 'px');
+                        }
+                        else if (t.stre_dot === 'lb') {  //if stretching left bottom dot
+
+                            if (ml < stre_len || mb < stre_len) {
+                                stre_len = Math.min(ml, mb);
+                            }
+                            else if (t.box.width() + stre_len < min_len || t.box.height() + stre_len < min_len) {
+                                stre_len = min_len - t.box.width();
+                            }
+
+                            t.box.width(t.box.width() + stre_len).height(t.box.height() + stre_len);
+                            t.box.css('left', String(ml - stre_len) + 'px');
+                        }
+                        else {    //if stretching right bottom dot
+
+                            if (mb < stre_len || mr < stre_len) {
+                                stre_len = Math.min(mb, mr);
+                            }
+                            else if (t.box.width() + stre_len < min_len || t.box.height() + stre_len < min_len) {
+                                stre_len = min_len - t.box.width();
+                            }
+
+                            t.box.width(t.box.width() + stre_len).height(t.box.height() + stre_len);
+                        }
+
+                        var left = t.box.position().left;
+                        var top = t.box.position().top;
+                        t.dot_lt.css('left', String(left) + 'px').css('top', String(top) + 'px');
+                        t.dot_rt.css('left', String(t.box.width() + left) + 'px').css('top', String(top) + 'px');
+                        t.dot_lb.css('left', String(left) + 'px').css('top', String(t.box.height() + top) + 'px');
+                        t.dot_rb.css('left', String(t.box.width() + left) + 'px').css('top', String(t.box.height() + top) + 'px');
+                    }
+                    t.startx = t.sx;
+                    t.starty = t.sy;
+                });
+            },
+            cut_image: function () {
+                var t = this;
+                var canvas = $('.cropper-edit')[0];
+                var context = canvas.getContext('2d');
+
+                canvas.height = canvas.width;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                var ratio = t.init_height / t.container.height();
+
+                var width = t.box.width();
+                var height = t.box.height();
+                var left = Number(t.box.css('left').slice(0, -2));
+                var top = Number(t.box.css('top').slice(0, -2));
+
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(t.image[0], ratio * left, ratio * top, ratio * width, ratio * height, 0, 0, width, height);
+
+                t.modal.modal('hide');
+                t.form.val('');
+
+                $('#avatar_str').val(canvas.toDataURL("image/jpeg"));
+            },
+        };
+
+        $('#avatar').change(function (event) {
+            cropper.init();
+        });
+
+        $('#avatar').change(function (event) {
+            var preview = $('#img_preview');
+            var avatar_text = $('#avatar_text');
+            var label = $('#avatar_label');
+            preview.css('backgroundImage', '');
+            avatar_text.text('');
+            if (!$(this).val()) {
+                avatar_text.text('No file is selected!');
+                return;
+            }
+            var file = this.files[0];
+            label.text(file.name);
+            if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+                avatar_text.text('Invalid image file!');
+                return;
+            }
+
+            $('#preview_text').show();
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var data = event.target.result;
+                preview.css('backgroundImage', 'url(' + data + ')');
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+{% endblock %}

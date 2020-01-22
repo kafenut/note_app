@@ -1,0 +1,439 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" /><!--bootstrap-->
+    <link href="/static/css/bootstrap.css" rel="stylesheet" /><!--bootstrap's css-->
+    <link href="/static/css/fontAwesome.css" rel="stylesheet" /><!--font awesome-->
+    <link href="/static/css/sidebar.css" rel="stylesheet" /><!--sidebar plugin-->
+    <link href="/static/css/sidebar-themes.css" rel="stylesheet" />
+    <link href="/static/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
+    <script src="/static/js/jquery.js"></script><!--https://code.jquery.com/jquery-3.4.1.js-->
+    <script src="/static/js/sha512.js"></script><!--sha512 plugin-->
+    <script src="/static/js/moment.min.js"></script><!--moment js-->
+</head>
+<body>
+    <a id="toggle-sidebar" href="#" class="fixed-top d-md-none" style="outline:none;" title="菜单">
+        <i class="fas fa-bars" style="font-size:2.5rem;color:aqua;"></i>
+    </a>
+    <div class="page-wrapper sidebar-bg bg1 toggled boder-radius-on ice-theme desktop">
+        <!--sidebar-->
+        <nav class="sidebar-wrapper">
+            <div class="sidebar-content">
+                <div class="sidebar-item sidebar-brand d-flex flex-row justify-content-end">
+                    {% if g.user.is_authenticated %}
+                    <button class="btn btn-outline-success ml-1 logout">Logout</button>
+                    {% else %}
+                    <button class="btn btn-outline-success h4 my-1" data-target="#Loginmodal" data-toggle="modal">Login</button>
+                    {% endif %}
+                </div>
+                <div class="sidebar-item sidebar-header d-flex flex-nowrap">
+                    {% if not g.user.is_authenticated %}
+                    <div class="user-pic">
+                        <img class="img-fluid" src="/static/img/avatar/anonymous.png" alt="kafenut" style="height:auto;" />
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">
+                            <strong>No user</strong>
+                        </span>
+                        <span class="user-status">
+                            <i class="fa fa-circle" style="color:red"></i>
+                            <span class="ml-1">offline</span>
+                        </span>
+                    </div>
+                    {% else %}
+                    <div class="user-pic">
+                        <img class="img-fluid" src="{{g.user.get_avatar()}}" alt="{{g.user.nickname}}" style="height:auto;" />
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">
+                            <strong>{{g.user.nickname}}</strong>
+                        </span>
+                        <span class="user-role">{{g.user.role}}</span>
+                        <span class="user-status">
+                            <i class="fa fa-circle" style="color:green"></i>
+                            <span class="ml-1">online</span>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="sidebar-item sidebar-search">
+                    <div>
+                        <div class="input-group">
+                            <input type="text" class="form-control search-menu" placeholder="Search..." />
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-item sidebar-menu">
+                    <ul>
+                        <!--main pages-->
+                        <li class="header-menu">
+                            <span>Pages</span>
+                        </li>
+                        <li>
+                            <a href="{{url_for('index')}}" class="d-flex" title="主页">
+                                <i class="fas fa-home" style="font-size:1.5rem;color:cyan"></i>
+                                <span class="menu-text ml-4">Home</span>
+                            </a>
+                        </li>
+                        {% if not g.user.is_authenticated %}
+                        <li>
+                            <a href="{{url_for('register')}}" class="d-flex" title="注册">
+                                <i class="fas fa-user-plus" style="font-size:1.5rem;color:firebrick"></i>
+                                <span class="menu-text ml-4">Register</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li>
+                            <a href="{{url_for('user',nickname=g.user.nickname)}}" class="d-flex" title="用户信息">
+                                <i class="fas fa-id-card" style="font-size:1.5rem;color:firebrick"></i>
+                                <span class="menu-text ml-4">User</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{url_for('blogs',nickname=g.user.nickname)}}" class="d-flex" title="我的笔记">
+                                <i class="far fa-sticky-note" style="font-size:1.5rem;color:lime"></i>
+                                <span class="menu-text ml-4">My notes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{url_for('new_note')}}" class="d-flex" title="新笔记">
+                                <i class="fas fa-pen" style="font-size:1.5rem;color:aquamarine;"></i>
+                                <span class="menu-text ml-4">New note</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        <!--user's notes-->
+                        {% if g.user.is_authenticated and g.user.nickname!='菜姬李' %}
+                        <li class="header-menu">
+                            <span>My notes</span>
+                        </li>
+                        {% for folder in g.user.folders %}
+                        <li class="sidebar-dropdown">
+                            <a href="javascript:void(0)" class="d-flex" title="{{folder}}">
+                                <span class="menu-text ml-4">{{folder}}</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    {% for note in g.user.notes %}
+                                    {% if note.logic_folder == folder %}
+                                    <li><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}" class="my-auto">{{note.title}}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        {% endfor %}
+                        {% endif %}
+
+                        <!--kafenut's notes-->
+                        <li class="header-menu">
+                            <span>Kafenut's notes</span>
+                        </li>
+                        <li class="sidebar-dropdown">
+                            <a href="javascript:void(0)" class="d-flex" title="python">
+                                <i class="fab fa-python" style="font-size:1.5rem;color:dodgerblue;"></i>
+                                <span class="menu-text ml-4">Python</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    {% for note in kafenut_notes %}
+                                    {% if note.logic_folder == "python" %}
+                                    <li><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}" class="my-auto">{{note.title}}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sidebar-dropdown">
+                            <a href="javascript:void(0)" class="d-flex" title="mysql">
+                                <i class="fas fa-database" style="font-size:1.5rem;color:dodgerblue;"></i>
+                                <span class="menu-text ml-4">Mysql</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    {% for note in kafenut_notes %}
+                                    {% if note.logic_folder == "mysql" %}
+                                    <li><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sidebar-dropdown">
+                            <a href="javascript:void(0)" class="d-flex" title="javaScript">
+                                <i class="fab fa-js" style="font-size:1.5rem;color:dodgerblue;"></i>
+                                <span class="menu-text ml-4">JavaScript</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    {% for note in kafenut_notes %}
+                                    {% if note.logic_folder == "javascript" %}
+                                    <li><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sidebar-dropdown">
+                            <a href="javascript:void(0)" class="d-flex" title="html">
+                                <i class="fab fa-html5" style="font-size:1.5rem;color:dodgerblue;"></i>
+                                <span class="menu-text ml-4">HTML</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    {% for note in kafenut_notes %}
+                                    {% if note.logic_folder == "html" %}
+                                    <li><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>                       
+
+                        <!--about site-->
+                        <li class="header-menu">
+                            <span>About the site</span>
+                        </li>
+                        <li>
+                            <a href="{{url_for('introduction')}}" class="d-flex" title="网站简介">
+                                <i class="fas fa-compass" style="font-size:1.5rem;color:green;"></i>
+                                <span class="menu-text ml-4">Introduction</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/kafenut/awesome_web_app" class="d-flex" title="网站源码" target="_blank">
+                                <i class="fas fa-code" style="font-size:1.5rem;color:green;"></i>
+                                <span class="menu-text ml-4">Source code</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{url_for('contact')}}" class="d-flex" title="联系我们">
+                                <i class="fas fa-phone-square-alt" style="font-size:1.5rem;color:green;"></i>
+                                <span class="menu-text ml-4">Contact us</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="d-flex" title="更新日志">
+                                <i class="far fa-sticky-note" style="font-size:1.5rem;color:green;"></i>
+                                <span class="menu-text ml-4">Update log</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <div class="dropdown">
+                    <a href="#" data-toggle="dropdown" title="我的消息">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge badge-pill badge-warning">3</span>
+                    </a>
+                </div>
+                <div>
+                    {% if not g.user.is_authenticated %}
+                    <a href="#" title="登录" data-target="#Loginmodal" data-toggle="modal">
+                        <i class="fas fa-sign-in-alt mt-1" style="font-size:1.5rem;color:green;"></i>
+                    </a>
+                    {% else %}
+                    <a href="{{url_for('logout')}}" title="退出登录">
+                        <i class="fas fa-sign-out-alt mt-1" style="font-size:1.5rem;color:red;"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        <!--login modal-->
+        <div class="modal fade" id="LoginModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Login</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form name="Login" id="login_form" novalidate>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" class="form-control" name="email" id="login_email" placeholder="Input your email..." />
+                            </div>
+                            <div class="form-group">
+                                <label for="passwd">Password:</label>
+                                <input type="password" class="form-control" name="passwd" id="login_passwd" placeholder="Input your password" />
+                            </div>
+                            <div class="d-flex flex-row justify-content-end">
+                                <small class="form-text text-danger m-2" id="login_text"></small>
+                                <button type="submit" class="btn btn-outline-primary">Login</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--content-->
+        <main class="page-content">
+
+            <h3 id="title" class="ml-3 mt-3 text-primary text-center"></h3>
+
+            <!--flash messages-->
+            {% with messages =get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert alert-warning alert-dismissable fade show mb-1" id="alert">
+                {% for message in messages %}
+                {{message}}
+                {% endfor %}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <hr />
+
+            <div class="container-fluid">
+                <div class="row">
+
+                    <div class="col col-md-8">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+
+                    <div class="col-md-4 d-none d-md-inline">
+
+                        <!--kafenut layout-->
+                        {% if layout=='note_layout'%}
+                        <div style="height:100px;"></div>
+                        <div class="row mt-1">
+                            <div class="col-8 offset-2">
+                                <div class="card" id="kafenut_card" style="height:16rem;position:relative;">
+                                    <img src="/static/img/source/sora.jpg" class="rounded-lg" style="height:8rem;" />
+                                    <img src="{{note.author.get_avatar()}}" class="rounded-circle shadow-lg" id="kafenut" style="position:absolute;height:50%;width:50%;z-index:1000;top:50%;left:50%;" />
+                                    <div style="height:4rem;"></div>
+                                    <a href="{{url_for('user',nickname=note.author.nickname)}}" class="card-text text-center mt-2 h5">{{note.author.nickname}}</a>
+                                </div>
+
+                                <div class="card mt-5 bg-info">
+                                    <div class="d-flex flex-column" style="height:40px;">
+                                        <p class="card-title my-auto ml-2 text-white">{{note.author.nickname}}的最新评论</p>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <ul class="list-group list-group-flush">
+                                            {% for i in range(0,5) %}
+                                            {% include "sub_templates/sm_cmmt.html" %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control mt-3" placeholder="我也来说两句..." />
+                                <div class="d-flex flex-row justify-content-end mt-1 mb-5">
+                                    <button type="button" class="btn btn-outline-success">发表</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif layout=="user" %}
+
+                        <h4 class="text-primary mb-2">他的文件夹</h4>
+                        {% for folder in user.folders %}
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#folder-{{folder}}">{{folder}}</button>
+                                </h3>
+                            </div>
+                            <div class="collapse" id="folder-{{folder}}">
+                                <div class="row col-11 offset-1">
+                                    <ul class="list-group list-group-flush">
+                                        {% for note in user.notes %}
+                                        {% if note.logic_folder==folder %}
+                                        <li class="list-group-item"><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% else %}
+
+                        <!--base layout-->
+                        <hr />
+                        {% if g.user.is_authenticated %}
+                        <a href="{{url_for('write_blog')}}">write a post now!</a><hr />
+                        {% endif %}
+                        <a href="{{url_for('register')}}">Have no account? Register now !</a><hr />
+                        <a href="{{url_for('introduction')}}">Learn about this site briefly.</a><hr />
+                        <a href="https://github.com/kafenut/awesome_web_app">Go to github to see how the site was built.</a><hr />
+                        <a href="{{url_for('api')}}">Learn about our api.</a>
+
+                        {% endif %}
+
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!--base script-->
+    <script>
+        'use strict'
+        $(function () {
+            var kafenut = $('#kafenut');
+            var width = '-' + String(kafenut.width() / 2) + 'px';
+            var height = '-' + String(kafenut.height() / 2) + 'px';
+            kafenut.css('margin-left', width).css('margin-top', height);
+
+            $('.logout').click(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href='/logout'
+            });
+
+            $('#login_form').submit(function (event) {  //use ajax to sumbit a login form
+                event.stopPropagation();
+                event.preventDefault();
+                var tip = $('#login_text');
+                tip.text('');
+                var email = $('#login_email').val();
+                var passwd = $('#login_passwd').val();
+                if (!email || !passwd) {
+                    tip.text('Please fill in the form first!');
+                    return false;
+                }
+                var raw_data = {
+                    title: 'login',
+                    email: email,
+                    passwd: sha512(passwd)
+                }
+                var data = JSON.stringify(raw_data);
+                $.ajax({
+                    url: '/login',
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: data
+                }).done(function (resp) {
+                    tip.text(resp.text)
+                    if (resp.success === true) {
+                        window.location.reload();
+                    }
+                }).fail(function (xhr, status) {
+                    tip.text('fail: ' + xhr.status + ',reason: ' + status);
+                });
+            });
+        });
+    </script>
+
+    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/bootstrap.js"></script>
+    <script src="/static/js/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="/static/js/sidebar.js"></script>
+</body>
+</html>
