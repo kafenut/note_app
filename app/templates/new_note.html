@@ -53,7 +53,7 @@
     <div class="d-flex flex-row">
         <small class="text-muted ml-auto my-auto" id="body_len"></small>
         <small id="tip" class="text-danger my-auto ml-1"></small>
-        <button type="submit" class="btn btn-outline-primary ml-1 my-auto">上传</button>
+        <button type="submit" id="submit" class="btn btn-outline-primary ml-1 my-auto">上传</button>
     </div>
 </form>
 <script>
@@ -127,7 +127,6 @@
                 note_body: $('#note_body').val(),
                 note_path: path,
             };
-            alert(path);
             var data = JSON.stringify(raw_data);
             $.ajax({
                 url: '/new_note',
@@ -149,6 +148,19 @@
         $('#note_body').keydown(function () {         //dynamically display body length
             $('#body_len').text('length: '+$(this).val().length);
         });
+
+        //close confirmation
+        var normal_close = false;
+
+        $('#submit').click(function () {
+            normal_close = true;
+        });
+
+        window.onbeforeunload = function () {
+            if (!normal_close) {
+                return "您真的打算离开本页面吗？系统将不会保存您的修改。";
+            }
+        };
     });
 </script>
 {% endblock %}

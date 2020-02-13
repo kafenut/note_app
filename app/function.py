@@ -22,20 +22,23 @@ def save_img_base64(s,user):
     return True
 
 from config import NOTE_UPLOAD_FOLDER
-def save_note(title,body,path,*,old_path='none'):    
-    tpath=path+'/'+title+'.txt'
+def save_note(title,body,nickname,code):
+    tpath=nickname+'/'+str(code)+'.txt'
     body=body.encode('utf-8')
     if len(body)>50000:
         return '笔记过长！'
     #if folder don't exist
-    if not os.path.exists(NOTE_UPLOAD_FOLDER+path):
-        os.mkdir(NOTE_UPLOAD_FOLDER+path);
-    if old_path=='none':
-        if title+'.txt' in os.listdir(NOTE_UPLOAD_FOLDER+path):
-            return '文件已存在！'
-    #delete old note
-    elif os.path.exists(NOTE_UPLOAD_FOLDER+old_path):
-        os.remove(NOTE_UPLOAD_FOLDER+old_path)
+    if not os.path.exists(NOTE_UPLOAD_FOLDER+nickname):
+        os.mkdir(NOTE_UPLOAD_FOLDER+nickname);
     with open(NOTE_UPLOAD_FOLDER+tpath,'wb') as f:
         f.write(body)
     return tpath
+    
+def del_note(path,title):
+    tpath=NOTE_UPLOAD_FOLDER+path
+    #if there is no such file
+    print(tpath)
+    if not os.path.exists(tpath):
+        return '文件未存在！'
+    os.remove(tpath)
+    return 'delete successfully!'

@@ -7,7 +7,7 @@ from flask_login import login_required,login_user,logout_user,current_user
 from datetime import datetime
 from app.models import User,Blog,Comment,Sub_Comment,Note,Issue,Note_Comment
 from config import BLOGS_PER_PAGE,ISSUE_PER_PAGE,NOTE_PER_PAGE,ADMIN_ID
-from app.function import save_img_base64,save_note
+from app.function import save_img_base64,save_note,del_note
 from sqlalchemy import and_,inspect
 
 import json
@@ -22,7 +22,7 @@ def index():
     if not g.user.is_authenticated: 
         notes=Note.query.order_by(Note.upload_time.desc()).limit(5)
     else:
-        notes=g.user.followed_notes.order_by(Note.upload_time.desc()).limit(5)
+        notes=g.user.followed_notes.order_by(Note.upload_time.desc()).limit(5)    
     return render_template('index.html',notes=notes,kafenut_notes=KAFENUT_NOTES)
 
 #user
@@ -197,13 +197,17 @@ def new_note():
         if not data['note_path'] in g.user.folders:
             g.user.folder=g.user.folder+'.'+data['note_path']
             db.session.add(g.user)
+    #get next auto increased primary key
+    sql="select max(id) from note"
+    for i in db.session.execute(sql):
+        for x in i:
+            code=int(x)+1
     #save the note
-    note=Note(title=data['note_title'],upload_time=datetime.utcnow(),author=g.user,logic_folder=data['note_path'])
-    path=save_note(data['note_title'],data['note_body'],g.user.nickname)
-    if path=='文件已存在！' or path=='文件过大！':
+    path=save_note(data['note_title'],data['note_body'],g.user.nickname,code)
+    if path=='文件过大！':
         resp['text']=path
     else:
-        note.path=path
+        note=Note(title=data['note_title'],upload_time=datetime.utcnow(),author=g.user,logic_folder=data['note_path'],path=path)
         db.session.add(note)
         db.session.commit()
         #reload KAFENUT_NOTES
@@ -249,22 +253,26 @@ def note(nickname,note_id):
         cmmt.level=2
     else:
         cmmt.level=1
-        last_cmmt=Note_Comment.query.filter_by(to_note_id=note.id).order_by(Note.upload_time.desc()).first
+        last_cmmt=Note_Comment.query.filter(and_(Note_Comment.to_note_id==note.id,Note_Comment.level==1)).order_by(Note_Comment.upload_time.desc()).first()
         if last_cmmt:
+            print(last_cmmt.floor)
             cmmt.floor=last_cmmt.floor+1
         else:
             cmmt.floor=1
     db.session.add(cmmt)  
     db.session.commit()
-    return redirect(url_for('note',note_title=note_title)) 
+    return redirect(url_for('note',note_id=note.id)) 
 
 @login_required
 @app.route('/<nickname>/modify_note/<note_id>',methods=['GET','POST'])
 def modify_note(nickname,note_id):
     global KAFENUT_NOTES
     user=User.query.filter_by(nickname=nickname).first()
-    if request.method=='GET':     
-        note=Note.query.get(int(note_id))
+    note=Note.query.get(int(note_id))
+    if note.author.id!=g.user.id:
+        flash('你没有权限访问该页面！')
+        return redirect('/')
+    if request.method=='GET':            
         if not note:
             flash('未找到该笔记！')
             return redirect(url_for('index'))
@@ -298,10 +306,10 @@ def modify_note(nickname,note_id):
     else:
         note.title=data['note_title']
         note.upload_time=datetime.utcnow()
-        #an updating save
-        path=save_note(data['note_title'],data['note_body'],g.user.nickname,old_path=note.path)
-        note.path=path
         note.logic_folder=data['note_path']
+        #update note
+        path=save_note(data['note_title'],data['note_body'],g.user.nickname,note.id)
+        note.path=path      
         db.session.add(note)
         db.session.commit()
         #reload KAFENUT_NOTES
@@ -313,6 +321,33 @@ def modify_note(nickname,note_id):
         flash('修改成功！')
         return json.dumps(resp)
 
+@login_required
+@app.route('/<nickname>/delete_note',methods=['POST',])
+def delete_note(nickname):
+    global KAFENUT_NOTES
+    data=json.loads(request.get_data())
+    resp=dict(success=False)
+    if data['title']!='delete_note':
+        resp['text']='错误的访问方法!'
+
+    note=Note.query.get(int(data['note_id']))
+    if note.author.id!=g.user.id:
+        resp['text']='你没有权限执行此操作！'
+
+    #identity confirmed
+    mes=del_note(note.path,note.title)
+    if mes=='delete successfully!':
+        db.session.delete(note)
+        db.session.commit()
+        flash('删除成功！')
+    #reload KAFENUT_NOTES
+    if note.author.nickname=='菜姬李':
+        KAFENUT_NOTES=Note.query.filter_by(author_id=ADMIN.id)
+    resp['text']=mes
+    resp['success']=True
+    resp['url']='/'
+    return json.dumps(resp)
+
 #kafenut
 @app.route('/kafenut')
 def kafenut():
@@ -322,7 +357,7 @@ def kafenut():
 @app.route('/kafenut/introduction')
 def introduction():
     global KAFENUT_NOTES
-    return render_template("introduction.html",kafenut_notes=KAFENUT_NOTES,layout='note_layout')
+    return render_template("introduction.html",kafenut_notes=KAFENUT_NOTES)
 
 @app.route('/kafenut/contact_us',methods=['GET','POST'])
 def contact():

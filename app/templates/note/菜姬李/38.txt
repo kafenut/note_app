@@ -1,0 +1,33 @@
+1.查看历史版本
+git最强大的功能便是版本控制了，你的每一次commit即视为一个版本，而git让你能够追踪每一次commit，并且将仓库恢复到特定的版本，这也是为什么每次commit的后都需要附上说明。
+在命令行中键入：
+
+git log
+
+即可查看每一次commit的信息，其中会包括每次commit的id与描述，HEAD所指的版本即是当前版本。
+需要注意的是，log命令只会显示当前版本之前的版本，并不会显示未来的版本。例如，如果你目前在版本4，log命令会显示版本1234的内容，现在你把仓库版本回退到版本3，这时log命令只会显示版本123的内容，不会显示版本4的内容，不过版本4的内容也不会消失，只是没有显示而已。
+
+2.版本回退
+git中，用HEAD表示当前版本，我们可以使用reset命令来实现版本回退，以下是reset的几种用法
+
+git reset --hard HEAD^   ——回退到上一版本
+git reset --hard HEAD^^   ——回退到两个版本前
+git reset --hard HEAD~100   ——回退到100个版本前
+git reset --hard commit_id   ——回退到commit_id的版本，commit_id只需要输入前几位即可，git会自动帮你定位
+
+如果要回退到未来的版本，可以先用git reflog命令定位需要回退到的版本commit_id，之后再用reset命令即可。
+
+3.撤销修改
+我们可以使用checkout命令撤销对特定文件的修改
+
+git checkout --  file
+
+checkout命令会将工作区特定文件回退到最近一次的add或commit时的状态。其中--十分重要，其表示不建立新分支，与后续git的分支管理有关。
+值得一提的是，checkout指定的文件被误删时，其可把误删文件恢复。
+
+如果你想回退的修改已经被add了，可以先使用reset命令撤销add：
+
+git reset HEAD file
+
+再用checkout命令即可完成撤销
+当然也可以使用上一节的rm命令撤销add

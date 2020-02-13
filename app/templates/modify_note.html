@@ -51,11 +51,61 @@
             </div>
         </div>
     </div>
-    <div class="d-flex flex-row">
+    <div class="d-flex flex-row mt-1">
+        <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#delete_modal">删除笔记</button>
         <small class="text-muted ml-auto my-auto" id="body_len"></small>
         <small id="tip" class="text-danger my-auto ml-1"></small>
-        <button type="submit" class="btn btn-outline-primary ml-1 my-auto">上传</button>
+        <button type="submit" id="submit" class="btn btn-outline-primary ml-1 my-auto">上传</button>
     </div>
+
+    <!--delete confirmation modal-->
+    <div class="modal fade" id="delete_modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">删除笔记</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>您真的打算删除笔记：<span class="text-primary" style="text-decoration:underline;">{{note.title}}</span> 吗？</h5>
+                    <h5>删除后笔记将无法恢复。</h5>
+                    <hr />
+                    <div class="row">
+                        <button type="button" id="delete_note" class="col-3 offset-2 btn btn-outline-success" data-dismiss="modal">是</button>
+                        <button type="button" class="col-3 offset-2 btn btn-outline-danger" data-dismiss="modal">否</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--unload confirmation modal-->
+    <div class="modal fade" id="unload_modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">修改笔记</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>您打算放弃本次对笔记：<span class="text-primary" style="text-decoration:underline;">{{note.title}}</span> 的修改吗？</h5>
+                    <hr />
+                    <div class="row">
+                        <button type="button" id="delete_note" class="col-3 offset-2 btn btn-outline-success" data-dismiss="modal">是</button>
+                        <button type="button" class="col-3 offset-2 btn btn-outline-danger" data-dismiss="modal">否</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </form>
 <script>
     'use strict';
@@ -151,9 +201,47 @@
             return false;
         });
 
+        //ajax for deleting note
+        $('#delete_note').click(function () {
+            var tip = $('#tip');
+            var raw_data = {
+                title: 'delete_note',
+                note_id: $('#note_form').data('id')
+            }
+            var data = JSON.stringify(raw_data);
+
+            $.ajax({
+                url: '/' + $('#note_form').data('nickname') + '/' + 'delete_note',
+                method: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: data
+            }).done(function (resp) {
+                tip.text(resp.text);
+                if (resp.success == true) {
+                    window.location.href = resp.url;
+                }
+            }).fail(function (xhr, status) {
+                tip.text('fail: ' + xhr.status + ',reason: ' + status);
+            });
+        });
+
         $('#note_body').keydown(function () {         //dynamically display body length
             $('#body_len').text('length: ' + $(this).val().length);
         });
+
+        //close confirmation
+        var normal_close = false;
+
+        $('#submit').click(function () {
+            normal_close = true;
+        });
+
+        window.onbeforeunload = function () {
+            if (!normal_close) {
+                return "您真的打算离开本页面吗？系统将不会保存您的修改。";
+            }
+        };
     });
 </script>
 

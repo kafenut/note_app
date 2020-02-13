@@ -11,17 +11,17 @@
         <small class="text-muted">浏览次数:{{note.view_num}}</small>
     </div>
     <hr />
+
 <pre style="white-space:pre-line;font-size:1.2rem;" >
 {% include "note/"+note.path %}
 </pre>
-
-<div class="d-flex flex-row">
-    {% if note.author == g.user %}
-    <a href="{{url_for('modify_note',nickname=g.user.nickname,note_id=note.id)}}" class=" ml-auto mr-2 btn btn-outline-success">修改笔记</a>
-    {% else %}
-    <a href="#" class=" ml-auto mr-2 btn btn-outline-success">点赞一下</a>
-    {% endif %}
-</div>
+    <div class="d-flex flex-row">
+        {% if note.author == g.user %}
+        <a href="{{url_for('modify_note',nickname=g.user.nickname,note_id=note.id)}}" class=" ml-auto mr-2 btn btn-outline-success">修改笔记</a>
+        {% else %}
+        <a href="#" class=" ml-auto mr-2 btn btn-outline-success">点赞一下</a>
+        {% endif %}
+    </div>
 </div>
 
 <hr />
