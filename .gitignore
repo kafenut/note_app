@@ -132,3 +132,20 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
+
+
+
+
+#custom ignore only for this project
+
+#database migrations
+migrations/
+
+#visual studio project
+.pyproj
+
+#config
+config.py
+
+#notes
+app/templates/note/*
