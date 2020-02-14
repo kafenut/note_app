@@ -142,7 +142,7 @@ dmypy.json
 migrations/
 
 #visual studio project
-.pyproj
+*.pyproj
 
 #config
 config.py
