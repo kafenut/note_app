@@ -6,9 +6,12 @@
 <div class="jumbotron px-1">
     <h3 class="text-center">{{note.title}}</h3>
     <div class="d-flex flex-row justify-content-center mt-3">
-        <small class="text-muted">作者:{{note.author.nickname}}</small>
-        <small class="text-muted mx-3">上传于:{{momentjs(note.upload_time).calendar()}}</small>
-        <small class="text-muted">浏览次数:{{note.view_num}}</small>
+        <small class="text-muted">作者:{{note.author.nickname}}</small>              
+    </div>
+    <div class="d-flex flex-row justify-content-center m-1">
+        <small class="text-muted ">上传于:{{momentjs(note.upload_time).calendar()}}</small>
+        <small class="text-muted mx-3">浏览次数:{{note.view_num}}</small>
+        <small class="text-muted ">更新于:{{momentjs(note.update_time).calendar()}}</small>
     </div>
     <hr />
 

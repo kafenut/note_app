@@ -146,6 +146,7 @@ class Sub_Comment(db.Model):
 class Note(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     upload_time=db.Column(db.DateTime)
+    update_time=db.Column(db.DateTime)
     title=db.Column(db.String(50))
     path=db.Column(db.String(100))
     logic_folder=db.Column(db.String(100))   #the logical folder user specified

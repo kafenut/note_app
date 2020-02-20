@@ -185,14 +185,14 @@ def new_note():
         return json.dumps(resp)
     #if making a new folder
     if data['new_folder']==True:
-        if len(g.user.folders) >= 5:
+        if len(g.user.folders) >= 5 and g.user.id!=ADMIN_ID:
             resp['text']='错误：文件夹数目过多！'
             return json.dumps(resp)
         if '.' in data['note_path']:
             resp['text']='错误：文件夹名中存在非法字符！'
             return json.dumps(resp)
         if len(data['note_path'])>20:
-            resp['text']='错误：文件夹名过长！'
+            resp['text']='错误：文件夹名长度有误！'
             return json.dumps(resp)
         if not data['note_path'] in g.user.folders:
             g.user.folder=g.user.folder+'.'+data['note_path']
@@ -207,7 +207,7 @@ def new_note():
     if path=='文件过大！':
         resp['text']=path
     else:
-        note=Note(title=data['note_title'],upload_time=datetime.utcnow(),author=g.user,logic_folder=data['note_path'],path=path)
+        note=Note(title=data['note_title'],upload_time=datetime.utcnow(),update_time=datetime.utcnow(),author=g.user,logic_folder=data['note_path'],path=path)
         db.session.add(note)
         db.session.commit()
         #reload KAFENUT_NOTES
@@ -305,7 +305,7 @@ def modify_note(nickname,note_id):
         return json.dumps(resp)
     else:
         note.title=data['note_title']
-        note.upload_time=datetime.utcnow()
+        note.update_time=datetime.utcnow()
         note.logic_folder=data['note_path']
         #update note
         path=save_note(data['note_title'],data['note_body'],g.user.nickname,note.id)
@@ -346,6 +346,77 @@ def delete_note(nickname):
     resp['text']=mes
     resp['success']=True
     resp['url']='/'
+    return json.dumps(resp)
+
+#folders
+@login_required
+@app.route('/note/folder_rename',methods=['POST',])
+def folder_rename():
+    global KAFENUT_NOTES
+    data=json.loads(request.get_data())
+    resp=dict(success=False)   
+    if data['title']!='rename_folder':
+        resp['text']="错误的访问方法!"
+        return json.dumps(resp)
+
+    old_name=data['folder_old_name']
+    folders=g.user.folders
+    #rename not allowed
+    if not old_name in folders:
+        resp['text']='没有该文件夹!'
+    elif '.' in old_name:
+        resp['text']='文件夹中有非法字符!'
+    elif len(old_name)<1 or len(old_name)>20:
+        resp['text']='文件夹长度有误！'
+    
+    #rename allowed
+    else:
+        notes=Note.query.filter(and_(Note.author_id==g.user.id,Note.logic_folder==old_name)).all()
+        for note in notes:
+            note.logic_folder=data['folder_new_name']
+        db.session.add_all(notes)
+        index=folders.index(old_name)
+        folders[index]=data['folder_new_name']
+        g.user.folder='.'.join(folders);
+        db.session.add(g.user)
+        db.session.commit()
+        #reload KAFENUT_NOTES
+        if g.user.id==ADMIN_ID:
+            KAFENUT_NOTES=Note.query.filter_by(author_id=ADMIN.id)
+        resp['success']=True
+        resp['text']='修改成功！'
+        flash('修改成功！')
+    
+    return json.dumps(resp)
+
+@login_required
+@app.route('/note/folder_delete',methods=['POST',])
+def folder_delete():
+    global KAFENUT_NOTES
+    data=json.loads(request.get_data())
+    resp=dict(success=False)
+    if data['title']!='delete_folder':
+        resp['text']="错误的访问方法!"
+        return json.dumps(resp)
+
+    folder_name=data['folder_name']
+    folders=g.user.folders
+    if not folder_name in folders:
+        resp['text']='没有该文件夹！'
+
+    #delete allowed
+    else:
+        folders.remove(folder_name)
+        g.user.folder='.'.join(folders)
+        db.session.add(g.user)
+        db.session.commit()
+        #reload KAFENUT_NOTES
+        if g.user.id==ADMIN_ID:
+            KAFENUT_NOTES=Note.query.filter_by(author_id=ADMIN.id)
+        resp['success']=True
+        resp['text']='删除成功！'
+        flash('删除成功！')
+
     return json.dumps(resp)
 
 #kafenut

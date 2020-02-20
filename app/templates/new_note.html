@@ -26,8 +26,8 @@
                     {% endfor %}
                 </select>
                 <button class="btn btn-outline-success ml-2" type="button" id="new_folder_button">新文件夹</button>
-                <button class="btn btn-outline-success ml-2 disabled" type="button" id="new_folder_button1">你至多能建立5个文件夹</button>
-                {% if g.user.folders.__len__() >= 5 %}
+                <button class="btn btn-outline-success ml-2 disabled d-none" type="button" id="new_folder_button1">你至多能建立5个文件夹</button>
+                {% if g.user.folders.__len__() >= 5 and g.user.id!=1 %}
                 <script>
                     $(function () {
                         $('#new_folder_button').hide();

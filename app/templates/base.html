@@ -134,6 +134,7 @@
                         <li class="header-menu">
                             <span>Kafenut's notes</span>
                         </li>
+                        <!--python-->
                         <li class="sidebar-dropdown">
                             <a href="javascript:void(0)" class="d-flex" title="python">
                                 <i class="fab fa-python" style="font-size:1.5rem;color:dodgerblue;"></i>
@@ -149,6 +150,23 @@
                                 </ul>
                             </div>
                         </li>
+                        <!--java-->
+                        <li class="sidebar-dropdown">
+                            <a href="javascript:void(0)" class="d-flex" title="mysql">
+                                <i class="fab fa-java" style="font-size:1.5rem;color:dodgerblue;"></i>
+                                <span class="menu-text ml-4">Java</span>
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    {% for note in kafenut_notes %}
+                                    {% if note.logic_folder == "java" %}
+                                    <li><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        <!--mysql-->
                         <li class="sidebar-dropdown">
                             <a href="javascript:void(0)" class="d-flex" title="mysql">
                                 <i class="fas fa-database" style="font-size:1.5rem;color:dodgerblue;"></i>
@@ -164,6 +182,7 @@
                                 </ul>
                             </div>
                         </li>
+                        <!--javascript-->
                         <li class="sidebar-dropdown">
                             <a href="javascript:void(0)" class="d-flex" title="javaScript">
                                 <i class="fab fa-js" style="font-size:1.5rem;color:dodgerblue;"></i>
@@ -179,10 +198,11 @@
                                 </ul>
                             </div>
                         </li>
+                        <!--web app-->
                         <li class="sidebar-dropdown">
-                            <a href="javascript:void(0)" class="d-flex" title="html">
+                            <a href="javascript:void(0)" class="d-flex" title="web app">
                                 <i class="fab fa-html5" style="font-size:1.5rem;color:dodgerblue;"></i>
-                                <span class="menu-text ml-4">HTML</span>
+                                <span class="menu-text ml-4">Web app</span>
                             </a>
                             <div class="sidebar-submenu">
                                 <ul>
@@ -193,7 +213,7 @@
                                     {% endfor %}
                                 </ul>
                             </div>
-                        </li>                       
+                        </li>
 
                         <!--about site-->
                         <li class="header-menu">
@@ -338,30 +358,193 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!--user layout-->
                         {% elif layout=="user" %}
 
                         <h4 class="text-primary mb-2">他的文件夹</h4>
                         {% for folder in user.folders %}
                         <div class="card">
+                            <!--folders-->
                             <div class="card-header">
-                                <h3 class="mb-0">
-                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#folder-{{folder}}">{{folder}}</button>
-                                </h3>
+                                <div class="row">
+                                    <h3 class="mb-0 col-8">
+                                        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#folder-{{folder}}">
+                                            {{folder}}
+                                        </button>
+                                    </h3>
+                                    <!--folder-rename class trigger rename modal-->
+                                    <!--folder-delete class trigger delete modal-->
+                                    <button class="btn btn-link col-2 my-auto folder-rename" data-folder="{{folder}}">更名</button>
+                                    <button class="btn btn-link col-2 my-auto folder-delete" data-folder="{{folder}}">删除</button>
+                                </div>
                             </div>
+                            <!--notes in folder-->
                             <div class="collapse" id="folder-{{folder}}">
                                 <div class="row col-11 offset-1">
-                                    <ul class="list-group list-group-flush">
-                                        {% for note in user.notes %}
-                                        {% if note.logic_folder==folder %}
-                                        <li class="list-group-item"><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>
-                                        {% endif %}
-                                        {% endfor %}
-                                    </ul>
+                                    <!--for some reason, I must put those code on a line. It contains folder and its notes.-->
+                                    <ul class="list-group list-group-flush folders">{% for note in user.notes %}{% if note.logic_folder==folder %}<li class="list-group-item"><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>{% endif %}{% endfor %}</ul>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
 
+                        <!--if no notes in folder, screen no thing at all-->
+                        <script>
+                            $(function () {
+                                var folders = $('.folders').toArray();
+                                for (var folder of folders) {
+                                    if (!$(folder).html()) {
+                                        $(folder).html("<li class='list-group-item'><a href='#'>nothing at all!</a></li>");
+                                    }
+                                }
+                            });
+                        </script>
+
+                        <!--rename modal-->
+                        <div class="modal fade" id="rename_modal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">文件夹更名</h4>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h5>您打算将文件夹 <span id="rename_folder_name" class="text-primary" style="text-decoration:underline;"></span> 更名为：</h5>
+                                        <input id="folder_new_name" type="text" class="form-control mt-1" />
+                                        <div class="invalid-feedback">
+                                            至少三个字符，至多20个字符！
+                                        </div>
+                                        <div class="d-flex flex-row mt-2">
+                                            <small id="rename_modal_tip" class="text-danger ml-auto my-auto"></small>
+                                            <button type="button" id="rename_confirm" class="btn btn-outline-primary ml-2">确认</button>
+                                        </div>
+                                        <hr />
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--delete modal-->
+                        <div class="modal fade" id="delete_modal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">删除文件夹</h4>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h5>您真的打算删除文件夹 <span id="delete_folder_name" class="text-primary" style="text-decoration:underline;"></span> 吗？</h5>
+                                        <hr />
+                                        <h5>删除后该文件夹下的文件不会消失，后续可以添加进其他文件夹。</h5>
+                                        <hr />
+                                        <small id="delete_modal_tip" class="text-danger ml-auto my-auto"></small>
+                                        <div class="row">
+                                            <button type="button" id="delete_confirm" class="col-3 offset-2 btn btn-outline-success" data-dismiss="modal">是</button>
+                                            <button type="button" class="col-3 offset-2 btn btn-outline-danger" data-dismiss="modal">否</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--rename script and delete script-->
+                        <script>
+                            $(function () {
+
+                                var rename_folder;
+                                var rename_modal = $('#rename_modal');
+
+                                //open rename modal
+                                $('.folder-rename').click(function () {
+                                    rename_folder = $(this).data('folder');
+                                    $('#rename_folder_name').text($(this).data('folder'));
+                                    rename_modal.modal('show');
+                                });
+
+                                //submit rename modal
+                                $('#rename_confirm').click(function () {
+                                    var input = $('#folder_new_name');
+                                    var new_name = input.val();
+                                    if (new_name.length > 20 || new_name.length < 3) {
+                                        input.addClass('invalid');
+                                        return;
+                                    }
+
+                                    var raw_data = {
+                                        title: 'rename_folder',
+                                        folder_old_name: rename_folder,
+                                        folder_new_name: new_name
+                                    };
+                                    var data = JSON.stringify(raw_data);
+                                    var tip = $('#rename_modal_tip');
+                                    $.ajax({
+                                        url: '/note/folder_rename',
+                                        method: 'POST',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: data
+                                    }).done(function (resp) {
+                                        tip.text(resp.text);
+                                        if (resp.success == true) {
+                                            if (resp.url) {
+                                                window.location.href = resp.url;
+                                            }
+                                            else
+                                                window.location.reload();
+                                        }
+                                        }).fail(function (xhr, status) {
+                                            tip.text('fail: ' + xhr.status + ',reason: ' + status);
+                                    });
+                                });
+
+                                var delete_folder;
+                                var delete_modal = $('#delete_modal');
+
+                                //open delete modal
+                                $('.folder-delete').click(function () {
+                                    delete_folder = $(this).data('folder');
+                                    $('#delete_folder_name').text($(this).data('folder'));
+                                    delete_modal.modal('show');
+                                });
+
+                                //submit delete modal
+                                $('#delete_confirm').click(function () {
+                                    var raw_data = {
+                                        title: 'delete_folder',
+                                        folder_name: delete_folder
+                                    }
+                                    var data = JSON.stringify(raw_data)
+                                    var tip = $('#delete_modal_tip');
+                                    $.ajax({
+                                        url: '/note/folder_delete',
+                                        method: 'POST',
+                                        dataType: 'json',
+                                        contentType: 'application/json',
+                                        data: data
+                                    }).done(function (resp) {
+                                        tip.text(resp.text);
+                                        if (resp.success == true) {
+                                            if (resp.url) {
+                                                window.location.href = resp.url;
+                                            }
+                                            else
+                                                window.location.reload();
+                                        }
+                                    }).fail(function (xhr, status) {
+                                        tip.text('fail: ' + xhr.status + ',reason: ' + status);
+                                    });
+                                });
+                            });
+                        </script>
                         {% else %}
 
                         <!--base layout-->
