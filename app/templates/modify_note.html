@@ -21,7 +21,8 @@
         <div id="old_folder">
             <div class="d-flex flex-row">
                 <label for="note_path" class="text-primary my-auto mr-2">储存路径：</label>
-                <select class="custom-select w-auto" id="note_path">
+                <!--folders-->
+                <select id="select_folder" class="custom-select w-auto">
                     {% for folder in g.user.folders %}
                     <option value="{{folder}}">{{folder}}</option>
                     {% endfor %}
@@ -82,29 +83,7 @@
             </div>
         </div>
     </div>
-    <!--unload confirmation modal-->
-    <div class="modal fade" id="unload_modal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
 
-                <div class="modal-header">
-                    <h4 class="modal-title">修改笔记</h4>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <i class="fas fa-times-circle"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <h5>您打算放弃本次对笔记：<span class="text-primary" style="text-decoration:underline;">{{note.title}}</span> 的修改吗？</h5>
-                    <hr />
-                    <div class="row">
-                        <button type="button" id="delete_note" class="col-3 offset-2 btn btn-outline-success" data-dismiss="modal">是</button>
-                        <button type="button" class="col-3 offset-2 btn btn-outline-danger" data-dismiss="modal">否</button>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
 
 </form>
 <script>
@@ -113,19 +92,26 @@
         $('#title').text('修改笔记');
 
         //let current folder be choosen
-        $('[value=' + $('#note_form').data('folder') + ']').prop('selected', true);  
+        var selects = $("#select_folder").find('option').toArray();
+        for (var sel of selects) {
+            var select = $(sel);
+            if (select.val() === $('#note_form').data('folder')) {
+                select.prop('selected', true);
+                break;
+            }
+        }
 
-        var new_folder = false;
+        var is_new_folder = false;
         $('#new_folder_button').click(function () {
             $('#old_folder').hide();
             $('#new_folder').show();
-            new_folder = true;
+            is_new_folder = true;
         });
 
         $('#folder_cancel_button').click(function () {
             $('#old_folder').show();
             $('#new_folder').hide();
-            new_folder = false;
+            is_new_folder = false;
         });
 
         //validation and ajax for note_form
@@ -143,7 +129,7 @@
                     else
                         $(input).addClass('is-valid').removeClass('is-invalid');
                 }
-                else if (input.id === 'note_new_folder' && new_folder === true) {
+                else if (input.id === 'note_new_folder' && is_new_folder === true) {
                     if (length < 1 || length > 20) {
                         $(input).addClass('is-invalid').removeClass('is-valid');
                     }
@@ -159,7 +145,7 @@
                 }
             };
 
-            if (new_folder === false) {
+            if (is_new_folder === false) {
                 $('#note_new_folder').addClass('is-valid').removeClass('is-invalid');
             }
 
@@ -170,18 +156,18 @@
 
             var tip = $('#tip');
             var path;
-            if (new_folder === false)
-                path = $('#note_path').val();
+            if (is_new_folder === false)
+                path = $('#select_folder').val();
             else
                 path = $('#note_new_folder').val();
 
             var raw_data = {
                 title: 'modify_note',
-                new_folder: new_folder,
+                is_new_folder: new_folder,
                 note_id: $(this).data('id'),
                 note_title: $('#note_title').val(),
-                note_body: $('#note_body').val(),
-                note_path: $('#note_path').val()
+                note_path: path,
+                note_body: $('#note_body').val()                
             };
             var data = JSON.stringify(raw_data);
             $.ajax({

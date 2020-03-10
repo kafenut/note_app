@@ -285,7 +285,7 @@ def modify_note(nickname,note_id):
         resp['text']='非法的访问方式!'
         return json.dumps(resp)
     #if making a new folder
-    if data['new_folder']==True:
+    if data['is_new_folder']==True:
         if len(g.user.folders) >= 5:
             resp['text']='错误：文件夹数目过多！'
             return json.dumps(resp)
@@ -302,11 +302,12 @@ def modify_note(nickname,note_id):
     note=Note.query.get(int(data['note_id']))
     if not note:
         resp['text']='未找到目标笔记！'
-        return json.dumps(resp)
+    elif not data['note_path'] in g.user.folders:
+        resp['text']='无该文件夹！'
     else:
         note.title=data['note_title']
         note.update_time=datetime.utcnow()
-        note.logic_folder=data['note_path']
+        note.logic_folder=data['note_path']      
         #update note
         path=save_note(data['note_title'],data['note_body'],g.user.nickname,note.id)
         note.path=path      
@@ -319,7 +320,7 @@ def modify_note(nickname,note_id):
         resp['text']='修改成功!'     
         resp['url']=url_for('note',note_id=note.id,nickname=note.author.nickname)
         flash('修改成功！')
-        return json.dumps(resp)
+    return json.dumps(resp)
 
 @login_required
 @app.route('/<nickname>/delete_note',methods=['POST',])

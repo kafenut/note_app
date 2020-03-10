@@ -201,13 +201,13 @@
                         <!--web app-->
                         <li class="sidebar-dropdown">
                             <a href="javascript:void(0)" class="d-flex" title="web app">
-                                <i class="fab fa-html5" style="font-size:1.5rem;color:dodgerblue;"></i>
+                                <i class="fab fa-internet-explorer" style="font-size:1.5rem;color:dodgerblue;"></i>
                                 <span class="menu-text ml-4">Web app</span>
                             </a>
                             <div class="sidebar-submenu">
                                 <ul>
                                     {% for note in kafenut_notes %}
-                                    {% if note.logic_folder == "html" %}
+                                    {% if note.logic_folder == "web app" %}
                                     <li><a href="{{url_for('note',note_id=note.id,nickname=note.author.nickname)}}">{{note.title}}</a></li>
                                     {% endif %}
                                     {% endfor %}
