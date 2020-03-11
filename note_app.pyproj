@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{28fd2af9-3a06-40d2-a10b-54837e068e77}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>AwesomeWebApp.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|ContinuumAnalytics|Anaconda36-64</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app\function.py" />
+    <Compile Include="app\models.py" />
+    <Compile Include="app\momentjs.py" />
+    <Compile Include="app\views.py" />
+    <Compile Include="app\__init__.py" />
+    <Compile Include="AwesomeWebApp.py" />
+    <Compile Include="config.py" />
+    <Compile Include="manage.py" />
+    <Compile Include="local_config.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="app\static\css\bootstrap.css" />
+    <Content Include="app\static\css\fontAwesome.css" />
+    <Content Include="app\static\css\jquery.mCustomScrollbar.min.css" />
+    <Content Include="app\static\css\sidebar-themes.css" />
+    <Content Include="app\static\css\sidebar.css" />
+    <Content Include="app\static\img\avatar\anonymous.png" />
+    <Content Include="app\static\img\bg1.jpg" />
+    <Content Include="app\static\img\source\jb.jpg" />
+    <Content Include="app\static\img\source\junk.jpg" />
+    <Content Include="app\static\img\source\mouse.png" />
+    <Content Include="app\static\img\source\mouse_square.png" />
+    <Content Include="app\static\img\source\qing.jpg" />
+    <Content Include="app\static\img\source\sora.jpg" />
+    <Content Include="app\static\js\bootstrap.js" />
+    <Content Include="app\static\js\jquery.js" />
+    <Content Include="app\static\js\jquery.mCustomScrollbar.concat.min.js" />
+    <Content Include="app\static\js\jquery.mCustomScrollbar.min.js" />
+    <Content Include="app\static\js\like.js" />
+    <Content Include="app\static\js\moment.min.js" />
+    <Content Include="app\static\js\popper.min.js" />
+    <Content Include="app\static\js\sha512.js" />
+    <Content Include="app\static\js\sidebar.js" />
+    <Content Include="app\static\webfonts\fa-brands-400.svg" />
+    <Content Include="app\static\webfonts\fa-regular-400.svg" />
+    <Content Include="app\static\webfonts\fa-solid-900.svg" />
+    <Content Include="app\templates\api.html" />
+    <Content Include="app\templates\base.html" />
+    <Content Include="app\templates\blogs.html" />
+    <Content Include="app\templates\blog_page.html" />
+    <Content Include="app\templates\contact.html" />
+    <Content Include="app\templates\index.html" />
+    <Content Include="app\templates\introduction.html" />
+    <Content Include="app\templates\kafenut_home.html" />
+    <Content Include="app\templates\modify_note.html" />
+    <Content Include="app\templates\new_blog.html" />
+    <Content Include="app\templates\new_note.html" />
+    <Content Include="app\templates\note\limbo\发撒地方当第三个.txt" />
+    <Content Include="app\templates\note\limbo\官方大使馆的发挥地方和代发货.txt" />
+    <Content Include="app\templates\note\limbo\烦得很房管局房管局房管局.txt" />
+    <Content Include="app\templates\note\菜姬李\11.txt" />
+    <Content Include="app\templates\note\菜姬李\15.txt" />
+    <Content Include="app\templates\note\菜姬李\16.txt" />
+    <Content Include="app\templates\note\菜姬李\29.txt" />
+    <Content Include="app\templates\note\菜姬李\30.txt" />
+    <Content Include="app\templates\note\菜姬李\37.txt" />
+    <Content Include="app\templates\note\菜姬李\38.txt" />
+    <Content Include="app\templates\note\菜姬李\39.txt" />
+    <Content Include="app\templates\note\菜姬李\40.txt" />
+    <Content Include="app\templates\note\菜姬李\41.txt" />
+    <Content Include="app\templates\note\菜姬李\42.txt" />
+    <Content Include="app\templates\note\菜姬李\43.txt" />
+    <Content Include="app\templates\note\菜姬李\44.txt" />
+    <Content Include="app\templates\note\菜姬李\45.txt" />
+    <Content Include="app\templates\note\菜姬李\46.txt" />
+    <Content Include="app\templates\note_page.html" />
+    <Content Include="app\templates\register.html" />
+    <Content Include="app\templates\sub_templates\blog.html" />
+    <Content Include="app\templates\sub_templates\cmmt.html" />
+    <Content Include="app\templates\sub_templates\issue.html" />
+    <Content Include="app\templates\sub_templates\note.html" />
+    <Content Include="app\templates\sub_templates\note_cmmt.html" />
+    <Content Include="app\templates\sub_templates\note_sub_cmmt.html" />
+    <Content Include="app\templates\sub_templates\sm_cmmt.html" />
+    <Content Include="app\templates\sub_templates\sub_cmmt.html" />
+    <Content Include="app\templates\text.html" />
+    <Content Include="app\templates\user.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="app" />
+    <Folder Include="app\static\" />
+    <Folder Include="app\static\css" />
+    <Folder Include="app\static\img" />
+    <Folder Include="app\static\img\avatar" />
+    <Folder Include="app\static\img\source" />
+    <Folder Include="app\static\js" />
+    <Folder Include="app\static\webfonts" />
+    <Folder Include="app\templates" />
+    <Folder Include="app\templates\note\" />
+    <Folder Include="app\templates\note\limbo" />
+    <Folder Include="app\templates\note\菜姬李" />
+    <Folder Include="app\templates\sub_templates" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

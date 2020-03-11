@@ -141,14 +141,15 @@ dmypy.json
 #database migrations
 migrations/
 
-#visual studio project
-*.pyproj
-
 #config
 config.py
+local_config.py
 
 #notes
 app/templates/note/*
 
 #tmp
 tmp/
+
+#.vs
+.vs/

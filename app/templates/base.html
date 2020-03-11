@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" /><!--bootstrap-->
-    <link href="/static/css/bootstrap.css" rel="stylesheet" /><!--bootstrap's css-->
-    <link href="/static/css/fontAwesome.css" rel="stylesheet" /><!--font awesome-->
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"><!--/static/css/bootstrap.css--><!--bootstrap's css-->
+    <link href="https://cdn.bootcss.com/font-awesome/5.12.1/css/all.css" rel="stylesheet"><!--/static/css/fontAwesome.css--> <!--font awesome-->
     <link href="/static/css/sidebar.css" rel="stylesheet" /><!--sidebar plugin-->
     <link href="/static/css/sidebar-themes.css" rel="stylesheet" />
-    <link href="/static/css/jquery.mCustomScrollbar.min.css" rel="stylesheet" />
-    <script src="/static/js/jquery.js"></script><!--https://code.jquery.com/jquery-3.4.1.js-->
-    <script src="/static/js/sha512.js"></script><!--sha512 plugin-->
+    <link href="https://cdn.bootcss.com/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css" rel="stylesheet"> <!--/static/css/jquery.mCustomScrollbar.min.css-->
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/js-sha512/0.8.0/sha512.min.js"></script><!--sha512 plugin-->
     <script src="/static/js/moment.min.js"></script><!--moment js-->
 </head>
 <body>
@@ -501,8 +501,8 @@
                                             else
                                                 window.location.reload();
                                         }
-                                        }).fail(function (xhr, status) {
-                                            tip.text('fail: ' + xhr.status + ',reason: ' + status);
+                                    }).fail(function (xhr, status) {
+                                        tip.text('fail: ' + xhr.status + ',reason: ' + status);
                                     });
                                 });
 
@@ -577,7 +577,7 @@
             $('.logout').click(function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.href='/logout'
+                window.location.href = '/logout'
             });
 
             $('#login_form').submit(function (event) {  //use ajax to sumbit a login form
@@ -615,9 +615,9 @@
         });
     </script>
 
-    <script src="/static/js/popper.min.js"></script>
-    <script src="/static/js/bootstrap.js"></script>
-    <script src="/static/js/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="/static/js/popper.min.js"></script> <!--/static/js/popper.min.js-->
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script> <!--/static/js/bootstrap.js-->
+    <script src="https://cdn.bootcss.com/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script><!--/static/js/jquery.mCustomScrollbar.concat.min.js-->
     <script src="/static/js/sidebar.js"></script>
 </body>
 </html>
