@@ -152,4 +152,13 @@ app/templates/note/*
 tmp/
 
 #.vs
-.vs/
+.vs
+
+#database/
+DBbackup/
+
+#log 
+log/
+
+#uwsgi temporary file
+uwsgi/
